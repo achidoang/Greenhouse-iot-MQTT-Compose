@@ -14,9 +14,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.kuliah.greenhouse_iot.presentation.screen.actuator.ActuatorScreen
 import com.kuliah.greenhouse_iot.presentation.screen.home.HomeScreen
 import com.kuliah.greenhouse_iot.presentation.screen.login.LoginScreen
 import com.kuliah.greenhouse_iot.presentation.screen.profile.ProfileScreen
+import com.kuliah.greenhouse_iot.presentation.screen.setPoint.SetPointScreen
 import com.kuliah.greenhouse_iot.presentation.viewmodel.mqtt.MqttViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -48,8 +50,16 @@ fun AppNavigationGraph(
 			ProfileScreen()
 		}
 
+		composable(Route.Actuator.destination){
+			ActuatorScreen()
+		}
+
 		composable(Route.Login.destination){
 			LoginScreen()
+		}
+
+		composable(Route.SetPoint.destination){
+			SetPointScreen()
 		}
 
 	}

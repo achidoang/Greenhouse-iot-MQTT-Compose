@@ -17,8 +17,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.kuliah.greenhouse_iot.data.model.ActuatorStatus
 import com.kuliah.greenhouse_iot.data.model.MonitoringData
 import com.kuliah.greenhouse_iot.presentation.common.NoInternetComponent
+import com.kuliah.greenhouse_iot.presentation.viewmodel.actuator.ActuatorViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.home.HomeScreenViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.mqtt.MqttViewModel
 
@@ -29,33 +31,52 @@ fun HomeScreen(
 	navController: NavHostController,
 	darkTheme: Boolean,
 	mqttViewModel: MqttViewModel = hiltViewModel(),
+	actuatorViewModel: ActuatorViewModel = hiltViewModel()
 
 ) {
 	val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
 
-
-
 	val monitoringData by mqttViewModel.monitoringData.collectAsState(initial = null)
 	val errorState by mqttViewModel.errorState.collectAsState(initial = null)
+	var showErrorDialog by remember { mutableStateOf(false) }
+	val actuatorStatus by actuatorViewModel.actuatorStatus.collectAsState()
 
-	LaunchedEffect(Unit) {
-		// Tempat untuk logika reconnect otomatis, jika diperlukan
+	LaunchedEffect(errorState) {
+		if (errorState != null && errorState!!.isNotEmpty()) {
+			showErrorDialog = true
+		}
 	}
 
-	// Menampilkan pesan error jika ada
-	errorState?.let {
-		if (it.isNotEmpty()) {
-			ErrorDialog(message = it)
-		}
+	// Menampilkan ErrorDialog jika showErrorDialog true
+	if (showErrorDialog) {
+		ErrorDialog(
+			message = errorState ?: "",
+			onDismiss = {
+				showErrorDialog = false
+			} // Mengatur state jadi false setelah dialog di-dismiss
+		)
 	}
 
 	// Box utama yang mengatur tampilan
 	Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-		if (errorState != null) {
-			Text(text = errorState ?: "Unknown Error", color = Color.Red)
-		} else if (monitoringData != null) {
-			// Menampilkan grid ketika data tersedia
-			HomeScreenGrid(monitoringData!!)
+		// Jika ada error yang relevan seperti koneksi gagal, tampilkan pesan error
+		errorState?.let { error ->
+			if (error == "Failed to connect to MQTT broker") {
+				Text(text = error, color = Color.Red)
+			}
+		}
+
+		// Jika tidak ada error dan data monitoring tersedia, tampilkan grid data
+		if (monitoringData != null) {
+			Column(
+				modifier = Modifier.fillMaxWidth(),
+				verticalArrangement = Arrangement.Top
+			) {
+				HomeScreenGrid(monitoringData!!)
+//				Spacer(modifier = Modifier.height(20.dp))
+				ActuatorStatusGrid(actuatorStatus)
+			}
+
 		} else {
 			CircularProgressIndicator()
 			Text(text = "Connecting to MQTT...", color = Color.Blue)
@@ -64,15 +85,110 @@ fun HomeScreen(
 }
 
 @Composable
+fun ActuatorStatusGrid(actuatorStatus: ActuatorStatus) {
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(16.dp)
+	) {
+		Text(
+			text = "Status Aktuator",
+			style = MaterialTheme.typography.titleSmall,
+			modifier = Modifier.align(Alignment.CenterHorizontally)
+		)
+
+		Spacer(modifier = Modifier.height(6.dp))
+
+		// Grid untuk aktuator status
+		LazyVerticalGrid(
+			columns = GridCells.Fixed(2), // Membuat grid dengan 2 kolom
+			verticalArrangement = Arrangement.spacedBy(4.dp),
+			horizontalArrangement = Arrangement.spacedBy(4.dp),
+			modifier = Modifier.fillMaxWidth()
+		) {
+			item {
+				ActuatorStatusCard(
+					title = "Aktuator Nutrisi",
+					backgroundColor = Color(0xFFFFF59D),
+					status = if (actuatorStatus.actuator_nutrisi == 1) "ON" else "OFF"
+				)
+			}
+			item {
+				ActuatorStatusCard(
+					title = "Aktuator pH Up",
+					backgroundColor = Color(0xFFFFCC80),
+					status = if (actuatorStatus.actuator_ph_up == 1) "ON" else "OFF"
+				)
+			}
+			item {
+				ActuatorStatusCard(
+					title = "Aktuator pH Down",
+					backgroundColor = Color(0xFFFFCC80),
+					status = if (actuatorStatus.actuator_ph_down == 1) "ON" else "OFF"
+				)
+			}
+			item {
+				ActuatorStatusCard(
+					title = "Aktuator Air Baku",
+					backgroundColor = Color(0xFFDCEDC8),
+					status = if (actuatorStatus.actuator_air_baku == 1) "ON" else "OFF"
+				)
+			}
+			item {
+				ActuatorStatusCard(
+					title = "Aktuator Pompa Utama 1",
+					backgroundColor = Color(0xFFB3E5FC),
+					status = if (actuatorStatus.actuator_pompa_utama_1 == 1) "ON" else "OFF"
+				)
+			}
+			item {
+				ActuatorStatusCard(
+					title = "Aktuator Pompa Utama 2",
+					backgroundColor = Color(0xFFFFF59D),
+					status = if (actuatorStatus.actuator_pompa_utama_2 == 1) "ON" else "OFF"
+				)
+			}
+		}
+	}
+}
+
+@Composable
+fun ActuatorStatusCard(title: String, status: String, backgroundColor: Color) {
+	Card(
+		modifier = Modifier
+			.fillMaxWidth()
+			.height(50.dp),
+		//		elevation = 4.dp,
+		colors = CardDefaults.cardColors(backgroundColor)
+	) {
+		Column(
+			modifier = Modifier
+				.fillMaxSize()
+				.padding(8.dp),
+			verticalArrangement = Arrangement.SpaceBetween
+		) {
+			Text(text = title, style = MaterialTheme.typography.bodyMedium)
+			Text(
+				text = status,
+				style = MaterialTheme.typography.labelSmall,
+				color = if (status == "ON") Color.Green else Color.Red
+			)
+		}
+	}
+}
+
+
+
+@Composable
 fun HomeScreenGrid(data: MonitoringData) {
 	Column(
 		modifier = Modifier
-			.fillMaxSize()
-			.padding(16.dp),
-		verticalArrangement = Arrangement.spacedBy(16.dp)
+			.fillMaxWidth()
+			.padding(10.dp),
+		verticalArrangement = Arrangement.spacedBy(8.dp)
 	) {
 		Text(
-			text = "Greenhouse v1.0",
+			text = "Real Time Monitoring",
 			style = MaterialTheme.typography.titleLarge,
 			modifier = Modifier.align(Alignment.CenterHorizontally)
 		)
@@ -159,13 +275,13 @@ fun StatCard(title: String, value: String, backgroundColor: Color, modifier: Mod
 }
 
 @Composable
-fun ErrorDialog(message: String) {
+fun ErrorDialog(message: String, onDismiss: () -> Unit) {
 	AlertDialog(
-		onDismissRequest = { /* Handle dismiss */ },
+		onDismissRequest = { onDismiss() },
 		title = { Text(text = "Error") },
 		text = { Text(text = message) },
 		confirmButton = {
-			TextButton(onClick = { /* Handle confirm */ }) {
+			TextButton(onClick = { onDismiss() }) {
 				Text(text = "OK")
 			}
 		}

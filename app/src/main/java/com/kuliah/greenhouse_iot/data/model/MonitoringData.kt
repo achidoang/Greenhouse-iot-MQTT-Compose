@@ -1,10 +1,11 @@
 package com.kuliah.greenhouse_iot.data.model
 
-data class MonitoringData(
-	val watertemp: Double,
-	val waterppm: Double,
-	val waterph: Double,
-	val airtemp: Double,
-	val airhum: Double
-)
+import com.google.gson.annotations.SerializedName
 
+data class MonitoringData(
+	@SerializedName("watertemp") val watertemp: Double,
+	@SerializedName("waterppm") val waterppm: Double,
+	@SerializedName("waterph") val waterph: Double,
+	@SerializedName("airtemp") val airtemp: Double,
+	@SerializedName("airhum") val airhum: Double
+)

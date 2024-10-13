@@ -3,7 +3,7 @@ package com.kuliah.greenhouse_iot.presentation.viewmodel.setPoint
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kuliah.greenhouse_iot.data.local.SetpointDataStoreManager
+import com.kuliah.greenhouse_iot.data.local.setpoint.SetpointPreferencesManager
 import com.kuliah.greenhouse_iot.data.model.Setpoints
 import com.kuliah.greenhouse_iot.data.remote.mqtt.MqttClientService
 import com.kuliah.greenhouse_iot.domain.usecases.controll_mqtt.PublishSetpointsUseCase
@@ -21,7 +21,7 @@ class SetpointViewModel @Inject constructor(
 	private val getSetpointsUseCase: GetSetpointsUseCase,
 	private val publishSetpointsUseCase: PublishSetpointsUseCase,
 	private val mqttClientService: MqttClientService,
-	private val setpointDataStoreManager: SetpointDataStoreManager
+	private val setpointPreferencesManager: SetpointPreferencesManager
 ) : ViewModel() {
 
 	private val _setpoints = MutableStateFlow(Setpoints())
@@ -35,7 +35,7 @@ class SetpointViewModel @Inject constructor(
 
 	init {
 		viewModelScope.launch {
-			setpointDataStoreManager.getSetpoint().collect { savedSetpoint ->
+			setpointPreferencesManager.getSetpoint().collect { savedSetpoint ->
 				_setpoints.value = savedSetpoint
 				_editedSetpoints.value = savedSetpoint
 			}
@@ -53,7 +53,7 @@ class SetpointViewModel @Inject constructor(
 				_editedSetpoints.value = updatedSetpoints
 
 				viewModelScope.launch {
-					setpointDataStoreManager.saveSetpoints(updatedSetpoints)
+					setpointPreferencesManager.saveSetpoints(updatedSetpoints)
 				}
 			} catch (e: Exception) {
 				// If message is invalid or not in correct format, ignore it
@@ -83,7 +83,7 @@ class SetpointViewModel @Inject constructor(
 	}
 	private fun saveSetpointsToDataStore(setpoints: Setpoints) {
 		viewModelScope.launch {
-			setpointDataStoreManager.saveSetpoints(setpoints)
+			setpointPreferencesManager.saveSetpoints(setpoints)
 		}
 	}
 

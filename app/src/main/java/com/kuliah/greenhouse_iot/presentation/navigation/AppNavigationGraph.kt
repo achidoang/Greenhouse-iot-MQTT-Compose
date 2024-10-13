@@ -19,7 +19,6 @@ import com.kuliah.greenhouse_iot.presentation.screen.home.HomeScreen
 import com.kuliah.greenhouse_iot.presentation.screen.login.LoginScreen
 import com.kuliah.greenhouse_iot.presentation.screen.profile.ProfileScreen
 import com.kuliah.greenhouse_iot.presentation.screen.setPoint.SetPointScreen
-import com.kuliah.greenhouse_iot.presentation.viewmodel.mqtt.MqttViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(UnstableApi::class)
@@ -28,7 +27,6 @@ fun AppNavigationGraph(
 	navHostController: NavHostController,
 	modifier: Modifier,
 	darkTheme: Boolean,
-	mqttViewModel: MqttViewModel
 
 ) {
 	NavHost(
@@ -41,8 +39,6 @@ fun AppNavigationGraph(
 				modifier = Modifier,
 				navController = navHostController, // Teruskan navController ke HomeScreen
 				darkTheme = darkTheme, // Ubah sesuai kebutuhan Anda
-				mqttViewModel = mqttViewModel
-
 			)
 		}
 

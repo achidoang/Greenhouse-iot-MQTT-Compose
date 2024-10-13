@@ -14,14 +14,15 @@ import androidx.test.core.app.ApplicationProvider
 import com.kuliah.greenhouse_iot.data.remote.ApiService
 import com.kuliah.greenhouse_iot.data.remote.mqtt.MqttClientService
 import com.kuliah.greenhouse_iot.data.repository.ActuatorRepositoryImpl
+import com.kuliah.greenhouse_iot.data.repository.ConnectionRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.MonitoringRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.SetpointRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.UserRepositoryImpl
 import com.kuliah.greenhouse_iot.domain.repository.ActuatorRepository
+import com.kuliah.greenhouse_iot.domain.repository.ConnectionRepository
 import com.kuliah.greenhouse_iot.domain.repository.MonitoringRepository
 import com.kuliah.greenhouse_iot.domain.repository.SetpointRepository
 import com.kuliah.greenhouse_iot.domain.repository.UserRepository
-import com.kuliah.greenhouse_iot.domain.usecases.subscribe_mqtt.SubscribeMqttUseCase
 import com.kuliah.greenhouse_iot.util.Constants.AUTH_URL
 import dagger.Binds
 import dagger.Module
@@ -56,11 +57,18 @@ object AppModule {
 
 	@Provides
 	@Singleton
+	fun provideConnectionRepository(
+		mqttClientService: MqttClientService
+	): ConnectionRepository {
+		return ConnectionRepositoryImpl(mqttClientService)
+	}
+
+	@Provides
+	@Singleton
 	fun provideMonitoringRepository(
-		mqttClientService: MqttClientService,
-		@ApplicationContext context: Context // Add context here
+		mqttClientService: MqttClientService
 	): MonitoringRepository {
-		return MonitoringRepositoryImpl(mqttClientService, context) // Pass context to repository
+		return MonitoringRepositoryImpl(mqttClientService)
 	}
 
 	@Provides

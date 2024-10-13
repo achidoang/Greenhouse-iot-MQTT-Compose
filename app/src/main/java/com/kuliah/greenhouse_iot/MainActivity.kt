@@ -32,7 +32,6 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.kuliah.greenhouse_iot.presentation.common.AppBottomBar
 import com.kuliah.greenhouse_iot.presentation.navigation.AppNavigationGraph
 import com.kuliah.greenhouse_iot.presentation.viewmodel.home.HomeScreenViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.mqtt.MqttViewModel
 import com.kuliah.greenhouse_iot.ui.theme.GreenhouseiotTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,7 +39,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
 //	private lateinit var mqttViewModel: MqttViewModel
-	private val mqttViewModel: MqttViewModel by viewModels()
 
 	@RequiresApi(Build.VERSION_CODES.O)
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,7 +92,6 @@ class MainActivity : ComponentActivity() {
 				navHostController = navController,
 				modifier = Modifier.padding(paddingValues = it),
 				darkTheme = darkTheme,
-				mqttViewModel = mqttViewModel
 
 			)
 		}

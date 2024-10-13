@@ -1,14 +1,11 @@
 package com.kuliah.greenhouse_iot.presentation.viewmodel.actuator
 
 import android.util.Log
-import androidx.datastore.preferences.protobuf.Internal.BooleanList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kuliah.greenhouse_iot.data.local.ActuatorPreferencesManager
+import com.kuliah.greenhouse_iot.data.local.actuator.ActuatorPreferencesManager
 import com.kuliah.greenhouse_iot.data.model.ActuatorStatus
 import com.kuliah.greenhouse_iot.data.remote.mqtt.MqttClientService
-import com.kuliah.greenhouse_iot.data.repository.ActuatorRepositoryImpl
-import com.kuliah.greenhouse_iot.domain.repository.ActuatorRepository
 import com.kuliah.greenhouse_iot.domain.usecases.controll_mqtt.PublishActuatorStatusUseCase
 import com.kuliah.greenhouse_iot.domain.usecases.subscribe_mqtt.GetActuatorStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -1,4 +1,4 @@
-package com.kuliah.greenhouse_iot.data.local
+package com.kuliah.greenhouse_iot.data.local.actuator
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

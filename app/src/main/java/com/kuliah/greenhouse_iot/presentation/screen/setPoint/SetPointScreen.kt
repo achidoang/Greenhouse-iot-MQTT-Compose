@@ -62,7 +62,7 @@ fun SetPointScreen(
 		SetPointSliderAndInput(
 			label = "Water PPM",
 			value = editedSetpoints.waterPpm.toFloat(),
-			range = 0f..10000f,
+			range = 0f..1000f,
 			isEnabled = isEditing,
 			onValueChange = { viewModel.onSetpointChanged(editedSetpoints.waterTemp.toFloat(), it, editedSetpoints.waterPh.toFloat(), editedSetpoints.airTemp.toFloat(), editedSetpoints.airHum.toFloat()) }
 		)

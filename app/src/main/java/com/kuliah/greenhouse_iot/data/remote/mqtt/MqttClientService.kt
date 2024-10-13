@@ -34,6 +34,11 @@ class MqttClientService @Inject constructor(
 			}
 	}
 
+	fun isConnected(): Boolean {
+		return mqttClient.state.isConnected
+	}
+
+
 	// Fetch the latest setpoints from the MQTT topic 'herbalawu/setpoint'
 	fun getSetpointsFromMqtt(onSetpointsReceived: (Setpoints) -> Unit, onError: (Throwable?) -> Unit) {
 		subscribe("herbalawu/setpoint", 1) { message ->

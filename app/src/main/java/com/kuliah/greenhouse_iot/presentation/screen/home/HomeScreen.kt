@@ -10,10 +10,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -21,8 +23,8 @@ import com.kuliah.greenhouse_iot.data.model.ActuatorStatus
 import com.kuliah.greenhouse_iot.data.model.MonitoringData
 import com.kuliah.greenhouse_iot.presentation.common.NoInternetComponent
 import com.kuliah.greenhouse_iot.presentation.viewmodel.actuator.ActuatorViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.home.HomeScreenViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.mqtt.MqttViewModel
+import com.kuliah.greenhouse_iot.presentation.viewmodel.connectMqtt.ConnectViewModel
+import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,19 +32,23 @@ fun HomeScreen(
 	modifier: Modifier,
 	navController: NavHostController,
 	darkTheme: Boolean,
-	mqttViewModel: MqttViewModel = hiltViewModel(),
+	connectViewModel: ConnectViewModel = hiltViewModel(),
+	monitoringViewModel: MonitoringViewModel = hiltViewModel(),
 	actuatorViewModel: ActuatorViewModel = hiltViewModel()
-
 ) {
-	val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
+	// Mengambil status koneksi dari ConnectViewModel
+	val isConnected by connectViewModel.isConnected.observeAsState(initial = false)
 
-	val monitoringData by mqttViewModel.monitoringData.collectAsState(initial = null)
-	val errorState by mqttViewModel.errorState.collectAsState(initial = null)
+	// Mengambil data monitoring dari MonitoringViewModel
+	val monitoringData by monitoringViewModel.monitoringData.observeAsState(initial = null)
+	val errorState by monitoringViewModel.error.observeAsState(initial = null)
+
 	var showErrorDialog by remember { mutableStateOf(false) }
 	val actuatorStatus by actuatorViewModel.actuatorStatus.collectAsState()
 
+	// Jika ada error, tampilkan dialog error
 	LaunchedEffect(errorState) {
-		if (errorState != null && errorState!!.isNotEmpty()) {
+		if (errorState != null) {
 			showErrorDialog = true
 		}
 	}
@@ -50,19 +56,26 @@ fun HomeScreen(
 	// Menampilkan ErrorDialog jika showErrorDialog true
 	if (showErrorDialog) {
 		ErrorDialog(
-			message = errorState ?: "",
-			onDismiss = {
-				showErrorDialog = false
-			} // Mengatur state jadi false setelah dialog di-dismiss
+			message = errorState?.message ?: "",
+			onDismiss = { showErrorDialog = false }
 		)
 	}
 
 	// Box utama yang mengatur tampilan
-	Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+	Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+		// Menampilkan status koneksi ke broker
+		Text(
+			textAlign = TextAlign.Start,
+			text = if (isConnected) "Connected to MQTT Broker" else "Not connected to MQTT Broker",
+			color = if (isConnected) Color.Green else Color.Red,
+			style = MaterialTheme.typography.labelMedium,
+			modifier = Modifier.padding(16.dp)
+		)
+
 		// Jika ada error yang relevan seperti koneksi gagal, tampilkan pesan error
 		errorState?.let { error ->
-			if (error == "Failed to connect to MQTT broker") {
-				Text(text = error, color = Color.Red)
+			if (error.message == "Failed to connect to MQTT broker") {
+				Text(text = error.message ?: "", color = Color.Red)
 			}
 		}
 
@@ -73,16 +86,22 @@ fun HomeScreen(
 				verticalArrangement = Arrangement.Top
 			) {
 				HomeScreenGrid(monitoringData!!)
-//				Spacer(modifier = Modifier.height(20.dp))
 				ActuatorStatusGrid(actuatorStatus)
 			}
-
 		} else {
-			CircularProgressIndicator()
-			Text(text = "Connecting to MQTT...", color = Color.Blue)
+			// Menampilkan CircularProgressIndicator saat koneksi belum tersambung atau belum ada data
+			Column(
+				modifier = Modifier.fillMaxSize(),
+				verticalArrangement = Arrangement.Center,
+				horizontalAlignment = Alignment.CenterHorizontally
+			) {
+				CircularProgressIndicator()
+				Text(text = "Waiting for Data from MQTT...", color = Color.Blue)
+			}
 		}
 	}
 }
+
 
 @Composable
 fun ActuatorStatusGrid(actuatorStatus: ActuatorStatus) {
@@ -136,14 +155,14 @@ fun ActuatorStatusGrid(actuatorStatus: ActuatorStatus) {
 			}
 			item {
 				ActuatorStatusCard(
-					title = "Aktuator Pompa Utama 1",
+					title = "Aktuator Pompa 1",
 					backgroundColor = Color(0xFFB3E5FC),
 					status = if (actuatorStatus.actuator_pompa_utama_1 == 1) "ON" else "OFF"
 				)
 			}
 			item {
 				ActuatorStatusCard(
-					title = "Aktuator Pompa Utama 2",
+					title = "Aktuator Pomp 2",
 					backgroundColor = Color(0xFFFFF59D),
 					status = if (actuatorStatus.actuator_pompa_utama_2 == 1) "ON" else "OFF"
 				)
@@ -157,21 +176,21 @@ fun ActuatorStatusCard(title: String, status: String, backgroundColor: Color) {
 	Card(
 		modifier = Modifier
 			.fillMaxWidth()
-			.height(50.dp),
+			.height(80.dp),
 		//		elevation = 4.dp,
 		colors = CardDefaults.cardColors(backgroundColor)
 	) {
 		Column(
 			modifier = Modifier
 				.fillMaxSize()
-				.padding(8.dp),
+				.padding(12.dp),
 			verticalArrangement = Arrangement.SpaceBetween
 		) {
 			Text(text = title, style = MaterialTheme.typography.bodyMedium)
 			Text(
 				text = status,
 				style = MaterialTheme.typography.labelSmall,
-				color = if (status == "ON") Color.Green else Color.Red
+				color = if (status == "ON") Color.DarkGray else Color.Red
 			)
 		}
 	}
@@ -185,14 +204,14 @@ fun HomeScreenGrid(data: MonitoringData) {
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(10.dp),
-		verticalArrangement = Arrangement.spacedBy(8.dp)
+		verticalArrangement = Arrangement.spacedBy(10.dp)
 	) {
+		Spacer(modifier = Modifier.height(5.dp))
 		Text(
 			text = "Real Time Monitoring",
 			style = MaterialTheme.typography.titleLarge,
 			modifier = Modifier.align(Alignment.CenterHorizontally)
 		)
-		Spacer(modifier = Modifier.height(8.dp))
 
 		// Grid baris pertama (Water Temperature, formasi 1 kolom)
 		Row(
@@ -259,7 +278,7 @@ fun HomeScreenGrid(data: MonitoringData) {
 fun StatCard(title: String, value: String, backgroundColor: Color, modifier: Modifier = Modifier) {
 	Card(
 		modifier = modifier
-			.height(120.dp),
+			.height(100.dp),
 		colors = CardDefaults.cardColors(backgroundColor)
 	) {
 		Column(

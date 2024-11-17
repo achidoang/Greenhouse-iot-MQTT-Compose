@@ -10,10 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.user.UserViewModel
 
 @Composable
-fun LoginScreen(viewModel: UserViewModel = hiltViewModel()) {
+fun LoginScreen() {
 	var username by remember { mutableStateOf("") }
 	var password by remember { mutableStateOf("") }
 
@@ -31,16 +30,5 @@ fun LoginScreen(viewModel: UserViewModel = hiltViewModel()) {
 			visualTransformation = PasswordVisualTransformation()
 		)
 
-		Button(onClick = {
-			viewModel.login(username, password)
-		}) {
-			Text("Login")
-		}
-
-		val loginResponse by viewModel.loginResponse.observeAsState()
-
-		loginResponse?.let {
-			Text("Login Success! Token: ${it.token}")
-		}
 	}
 }

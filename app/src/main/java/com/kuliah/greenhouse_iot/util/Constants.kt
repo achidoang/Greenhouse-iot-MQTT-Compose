@@ -12,4 +12,6 @@ object Constants {
 	const val ITEMS_PER_PAGE = 10
 	val THEME_MODE_KEY = booleanPreferencesKey("THEME_MODE_KEY")
 	const val BROKER_URL = "tcp://broker.emqx.io:1883"
-	const val AUTH_URL = "http://localhost:5000/api/"}
+	const val AUTH_URL = "http://localhost:5000/api/"
+	const val WEBSOCKET_URL = "wss://mqtt.achiaja.my.id/ws"
+}

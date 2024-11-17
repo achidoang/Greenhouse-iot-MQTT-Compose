@@ -19,6 +19,7 @@ import com.kuliah.greenhouse_iot.presentation.screen.home.HomeScreen
 import com.kuliah.greenhouse_iot.presentation.screen.login.LoginScreen
 import com.kuliah.greenhouse_iot.presentation.screen.profile.ProfileScreen
 import com.kuliah.greenhouse_iot.presentation.screen.setPoint.SetPointScreen
+import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(UnstableApi::class)
@@ -26,7 +27,7 @@ import com.kuliah.greenhouse_iot.presentation.screen.setPoint.SetPointScreen
 fun AppNavigationGraph(
 	navHostController: NavHostController,
 	modifier: Modifier,
-	darkTheme: Boolean,
+//	darkTheme: Boolean,
 
 ) {
 	NavHost(
@@ -37,8 +38,9 @@ fun AppNavigationGraph(
 		composable(Route.Home.destination) {
 			HomeScreen(
 				modifier = Modifier,
-				navController = navHostController, // Teruskan navController ke HomeScreen
-				darkTheme = darkTheme, // Ubah sesuai kebutuhan Anda
+				navController = navHostController,
+				// Teruskan navController ke HomeScreen
+				//				darkTheme = darkTheme, // Ubah sesuai kebutuhan Anda
 			)
 		}
 

@@ -31,13 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.kuliah.greenhouse_iot.data.model.ActuatorStatus
-import com.kuliah.greenhouse_iot.presentation.viewmodel.actuator.ActuatorViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ActuatorScreen(viewModel: ActuatorViewModel = hiltViewModel()) {
-	val actuatorStatus by viewModel.actuatorStatus.collectAsState()
+fun ActuatorScreen() {
 
 	LazyVerticalGrid(
 		columns = GridCells.Fixed(2), // Untuk menampilkan dalam grid 2 kolom
@@ -47,54 +44,7 @@ fun ActuatorScreen(viewModel: ActuatorViewModel = hiltViewModel()) {
 		// List of actuators with corresponding switch buttons
 		items(6) { index ->
 			when (index) {
-				0 -> ActuatorSwitchItem(
-					label = "Nutrisi",
-					checked = actuatorStatus.actuator_nutrisi == 1,
-					onCheckedChange = { isChecked ->
-						viewModel.toggleActuator("actuator_nutrisi", if (isChecked) 1 else 0)
-						viewModel.confirmEdit()
-					}
-				)
-				1 -> ActuatorSwitchItem(
-					label = "pH Up",
-					checked = actuatorStatus.actuator_ph_up == 1,
-					onCheckedChange = { isChecked ->
-						viewModel.toggleActuator("actuator_ph_up", if (isChecked) 1 else 0)
-						viewModel.confirmEdit()
-					}
-				)
-				2 -> ActuatorSwitchItem(
-					label = "pH Down",
-					checked = actuatorStatus.actuator_ph_down == 1,
-					onCheckedChange = { isChecked ->
-						viewModel.toggleActuator("actuator_ph_down", if (isChecked) 1 else 0)
-						viewModel.confirmEdit()
-					}
-				)
-				3 -> ActuatorSwitchItem(
-					label = "Air Baku",
-					checked = actuatorStatus.actuator_air_baku == 1,
-					onCheckedChange = { isChecked ->
-						viewModel.toggleActuator("actuator_air_baku", if (isChecked) 1 else 0)
-						viewModel.confirmEdit()
-					}
-				)
-				4 -> ActuatorSwitchItem(
-					label = "Pompa Utama 1",
-					checked = actuatorStatus.actuator_pompa_utama_1 == 1,
-					onCheckedChange = { isChecked ->
-						viewModel.toggleActuator("actuator_pompa_utama_1", if (isChecked) 1 else 0)
-						viewModel.confirmEdit()
-					}
-				)
-				5 -> ActuatorSwitchItem(
-					label = "Pompa Utama 2",
-					checked = actuatorStatus.actuator_pompa_utama_2 == 1,
-					onCheckedChange = { isChecked ->
-						viewModel.toggleActuator("actuator_pompa_utama_2", if (isChecked) 1 else 0)
-						viewModel.confirmEdit()
-					}
-				)
+
 			}
 		}
 	}

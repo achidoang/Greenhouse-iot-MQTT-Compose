@@ -28,14 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.setPoint.SetpointViewModel
 
 @Composable
 fun SetPointScreen(
-	viewModel: SetpointViewModel = hiltViewModel()
 ) {
-	val setpoints by viewModel.setpoints.collectAsState()
-	val editedSetpoints by viewModel.editedSetpoints.collectAsState()
 
 	var isEditing by remember { mutableStateOf(false) }
 
@@ -50,46 +46,7 @@ fun SetPointScreen(
 			modifier = Modifier.padding(bottom = 16.dp)
 		)
 
-		// Editable sliders and input fields
-		SetPointSliderAndInput(
-			label = "Water Temperature",
-			value = editedSetpoints.waterTemp.toFloat(),
-			range = 0f..100f,
-			isEnabled = isEditing,
-			onValueChange = { viewModel.onSetpointChanged(it, editedSetpoints.waterPpm.toFloat(), editedSetpoints.waterPh.toFloat(), editedSetpoints.airTemp.toFloat(), editedSetpoints.airHum.toFloat()) }
-		)
 
-		SetPointSliderAndInput(
-			label = "Water PPM",
-			value = editedSetpoints.waterPpm.toFloat(),
-			range = 0f..1000f,
-			isEnabled = isEditing,
-			onValueChange = { viewModel.onSetpointChanged(editedSetpoints.waterTemp.toFloat(), it, editedSetpoints.waterPh.toFloat(), editedSetpoints.airTemp.toFloat(), editedSetpoints.airHum.toFloat()) }
-		)
-
-		SetPointSliderAndInput(
-			label = "Water pH",
-			value = editedSetpoints.waterPh.toFloat(),
-			range = 1f..14f,
-			isEnabled = isEditing,
-			onValueChange = { viewModel.onSetpointChanged(editedSetpoints.waterTemp.toFloat(), editedSetpoints.waterPpm.toFloat(), it, editedSetpoints.airTemp.toFloat(), editedSetpoints.airHum.toFloat()) }
-		)
-
-		SetPointSliderAndInput(
-			label = "Air Temperature",
-			value = editedSetpoints.airTemp.toFloat(),
-			range = 0f..100f,
-			isEnabled = isEditing,
-			onValueChange = { viewModel.onSetpointChanged(editedSetpoints.waterTemp.toFloat(), editedSetpoints.waterPpm.toFloat(), editedSetpoints.waterPh.toFloat(), it, editedSetpoints.airHum.toFloat()) }
-		)
-
-		SetPointSliderAndInput(
-			label = "Air Humidity",
-			value = editedSetpoints.airHum.toFloat(),
-			range = 0f..100f,
-			isEnabled = isEditing,
-			onValueChange = { viewModel.onSetpointChanged(editedSetpoints.waterTemp.toFloat(), editedSetpoints.waterPpm.toFloat(), editedSetpoints.waterPh.toFloat(), editedSetpoints.airTemp.toFloat(), it) }
-		)
 
 		Spacer(modifier = Modifier.height(16.dp))
 
@@ -101,7 +58,6 @@ fun SetPointScreen(
 			if (isEditing) {
 				Button(
 					onClick = {
-						viewModel.confirmEdit()
 						isEditing = false
 					}
 				) {
@@ -113,7 +69,6 @@ fun SetPointScreen(
 				Button(
 					onClick = {
 						isEditing = false
-						viewModel.startEdit() // Kembalikan ke setpoint asli sebelum edit
 					}
 				) {
 					Text(text = "Cancel")
@@ -121,7 +76,6 @@ fun SetPointScreen(
 			} else {
 				Button(
 					onClick = {
-						viewModel.startEdit()
 						isEditing = true
 					}
 				) {

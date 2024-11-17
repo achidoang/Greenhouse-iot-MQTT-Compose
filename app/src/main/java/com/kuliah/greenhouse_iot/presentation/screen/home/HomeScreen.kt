@@ -1,198 +1,96 @@
 package com.kuliah.greenhouse_iot.presentation.screen.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.kuliah.greenhouse_iot.data.model.ActuatorStatus
 import com.kuliah.greenhouse_iot.data.model.MonitoringData
-import com.kuliah.greenhouse_iot.presentation.common.NoInternetComponent
-import com.kuliah.greenhouse_iot.presentation.viewmodel.actuator.ActuatorViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.connectMqtt.ConnectViewModel
+import com.kuliah.greenhouse_iot.presentation.viewmodel.actuator.AktuatorViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
+import com.kuliah.greenhouse_iot.presentation.viewmodel.setPoint.SetPointViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-	modifier: Modifier,
+	modifier: Modifier = Modifier,
 	navController: NavHostController,
-	darkTheme: Boolean,
-	connectViewModel: ConnectViewModel = hiltViewModel(),
 	monitoringViewModel: MonitoringViewModel = hiltViewModel(),
-	actuatorViewModel: ActuatorViewModel = hiltViewModel()
+	aktuatorViewModel: AktuatorViewModel = hiltViewModel(),
+	setPointViewModel: SetPointViewModel = hiltViewModel(),
+	//	darkTheme: Boolean,
+
 ) {
-	// Mengambil status koneksi dari ConnectViewModel
-	val isConnected by connectViewModel.isConnected.observeAsState(initial = false)
+	val monitoringData = monitoringViewModel.monitoringData.collectAsState().value
+	val aktuatorData = aktuatorViewModel.aktuatorData.collectAsState().value
+	val setPointData = setPointViewModel.setPointData.collectAsState().value
+	Log.d("HomeScreen", "Aktuator data in UI: $aktuatorData")
+	Log.d("HomeScreen", "Monitoring data in UI: $monitoringData")
+	Log.d("HomeScreen", "SetPoint data in UI: $setPointData")
 
-	// Mengambil data monitoring dari MonitoringViewModel
-	val monitoringData by monitoringViewModel.monitoringData.observeAsState(initial = null)
-	val errorState by monitoringViewModel.error.observeAsState(initial = null)
 
-	var showErrorDialog by remember { mutableStateOf(false) }
-	val actuatorStatus by actuatorViewModel.actuatorStatus.collectAsState()
 
-	// Jika ada error, tampilkan dialog error
-	LaunchedEffect(errorState) {
-		if (errorState != null) {
-			showErrorDialog = true
-		}
-	}
-
-	// Menampilkan ErrorDialog jika showErrorDialog true
-	if (showErrorDialog) {
-		ErrorDialog(
-			message = errorState?.message ?: "",
-			onDismiss = { showErrorDialog = false }
-		)
-	}
-
-	// Box utama yang mengatur tampilan
+	// Main UI layout
 	Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-		// Menampilkan status koneksi ke broker
-		Text(
-			textAlign = TextAlign.Start,
-			text = if (isConnected) "Connected to MQTT Broker" else "Not connected to MQTT Broker",
-			color = if (isConnected) Color.Green else Color.Red,
-			style = MaterialTheme.typography.labelMedium,
-			modifier = Modifier.padding(16.dp)
-		)
-
-		// Jika ada error yang relevan seperti koneksi gagal, tampilkan pesan error
-		errorState?.let { error ->
-			if (error.message == "Failed to connect to MQTT broker") {
-				Text(text = error.message ?: "", color = Color.Red)
-			}
-		}
-
-		// Jika tidak ada error dan data monitoring tersedia, tampilkan grid data
-		if (monitoringData != null) {
-			Column(
-				modifier = Modifier.fillMaxWidth(),
-				verticalArrangement = Arrangement.Top
-			) {
-				HomeScreenGrid(monitoringData!!)
-				ActuatorStatusGrid(actuatorStatus)
-			}
-		} else {
-			// Menampilkan CircularProgressIndicator saat koneksi belum tersambung atau belum ada data
-			Column(
-				modifier = Modifier.fillMaxSize(),
-				verticalArrangement = Arrangement.Center,
-				horizontalAlignment = Alignment.CenterHorizontally
-			) {
-				CircularProgressIndicator()
-				Text(text = "Waiting for Data from MQTT...", color = Color.Blue)
-			}
-		}
-	}
-}
 
 
-@Composable
-fun ActuatorStatusGrid(actuatorStatus: ActuatorStatus) {
-	Column(
-		modifier = Modifier
-			.fillMaxWidth()
-			.padding(16.dp)
-	) {
-		Text(
-			text = "Status Aktuator",
-			style = MaterialTheme.typography.titleSmall,
-			modifier = Modifier.align(Alignment.CenterHorizontally)
-		)
-
-		Spacer(modifier = Modifier.height(6.dp))
-
-		// Grid untuk aktuator status
-		LazyVerticalGrid(
-			columns = GridCells.Fixed(2), // Membuat grid dengan 2 kolom
-			verticalArrangement = Arrangement.spacedBy(4.dp),
-			horizontalArrangement = Arrangement.spacedBy(4.dp),
-			modifier = Modifier.fillMaxWidth()
-		) {
-			item {
-				ActuatorStatusCard(
-					title = "Aktuator Nutrisi",
-					backgroundColor = Color(0xFFFFF59D),
-					status = if (actuatorStatus.actuator_nutrisi == 1) "ON" else "OFF"
-				)
-			}
-			item {
-				ActuatorStatusCard(
-					title = "Aktuator pH Up",
-					backgroundColor = Color(0xFFFFCC80),
-					status = if (actuatorStatus.actuator_ph_up == 1) "ON" else "OFF"
-				)
-			}
-			item {
-				ActuatorStatusCard(
-					title = "Aktuator pH Down",
-					backgroundColor = Color(0xFFFFCC80),
-					status = if (actuatorStatus.actuator_ph_down == 1) "ON" else "OFF"
-				)
-			}
-			item {
-				ActuatorStatusCard(
-					title = "Aktuator Air Baku",
-					backgroundColor = Color(0xFFDCEDC8),
-					status = if (actuatorStatus.actuator_air_baku == 1) "ON" else "OFF"
-				)
-			}
-			item {
-				ActuatorStatusCard(
-					title = "Aktuator Pompa 1",
-					backgroundColor = Color(0xFFB3E5FC),
-					status = if (actuatorStatus.actuator_pompa_utama_1 == 1) "ON" else "OFF"
-				)
-			}
-			item {
-				ActuatorStatusCard(
-					title = "Aktuator Pomp 2",
-					backgroundColor = Color(0xFFFFF59D),
-					status = if (actuatorStatus.actuator_pompa_utama_2 == 1) "ON" else "OFF"
-				)
-			}
-		}
-	}
-}
-
-@Composable
-fun ActuatorStatusCard(title: String, status: String, backgroundColor: Color) {
-	Card(
-		modifier = Modifier
-			.fillMaxWidth()
-			.height(80.dp),
-		//		elevation = 4.dp,
-		colors = CardDefaults.cardColors(backgroundColor)
-	) {
 		Column(
 			modifier = Modifier
 				.fillMaxSize()
-				.padding(12.dp),
-			verticalArrangement = Arrangement.SpaceBetween
+				.padding(16.dp)
 		) {
-			Text(text = title, style = MaterialTheme.typography.bodyMedium)
-			Text(
-				text = status,
-				style = MaterialTheme.typography.labelSmall,
-				color = if (status == "ON") Color.DarkGray else Color.Red
-			)
+			Text(text = "Data Monitoring", style = MaterialTheme.typography.labelLarge)
+
+			if (monitoringData != null) {
+				Text(text = "Suhu Air: ${monitoringData.watertemp} °C")
+				Text(text = "PPM Air: ${monitoringData.waterppm} ppm")
+				Text(text = "pH Air: ${monitoringData.waterph}")
+				Text(text = "Suhu Udara: ${monitoringData.airtemp} °C")
+				Text(text = "Kelembapan Udara: ${monitoringData.airhum}%")
+				Text(text = "Timestamp: ${monitoringData.timestamp}")
+			} else {
+				Text(text = "Mengambil data...")
+			}
+			Spacer(modifier = Modifier.height(16.dp))
+
+			// Aktuator Data Display
+			Text(text = "Data Aktuator", style = MaterialTheme.typography.labelLarge)
+			if (aktuatorData != null) {
+				Text("Nutrisi: ${if (aktuatorData.actuator_nutrisi) "On" else "Off"}")
+				Text("pH Up: ${if (aktuatorData.actuator_ph_up) "On" else "Off"}")
+				Text("pH Down: ${if (aktuatorData.actuator_ph_down) "On" else "Off"}")
+				Text("Air Baku: ${if (aktuatorData.actuator_air_baku) "On" else "Off"}")
+				Text("Pompa Utama 1: ${if (aktuatorData.actuator_pompa_utama_1) "On" else "Off"}")
+				Text("Pompa Utama 2: ${if (aktuatorData.actuator_pompa_utama_2) "On" else "Off"}")
+				Text("Timestamp: ${aktuatorData.timestamp}")
+			} else {
+				Text(text = "Loading Aktuator Data...")
+			}
+
+			Spacer(modifier = Modifier.height(16.dp))
+
+			// SetPoint Data Display
+			Text(text = "Data SetPoint", style = MaterialTheme.typography.labelLarge)
+			if (setPointData != null) {
+				Text(text = "SetPoint Suhu Air: ${setPointData.watertemp} °C")
+				Text(text = "SetPoint PPM Air: ${setPointData.waterppm} ppm")
+				Text(text = "SetPoint pH Air: ${setPointData.waterph}")
+				Text(text = "Profile: ${setPointData.profile}")
+				Text(text = "Timestamp: ${setPointData.timestamp}")
+			} else {
+				Text(text = "Loading SetPoint Data...")
+			}
+
+
 		}
+
 	}
 }
 
@@ -306,3 +204,100 @@ fun ErrorDialog(message: String, onDismiss: () -> Unit) {
 		}
 	)
 }
+
+
+
+//@Composable
+//fun ActuatorStatusGrid(actuatorStatus: ActuatorStatus) {
+//	Column(
+//		modifier = Modifier
+//			.fillMaxWidth()
+//			.padding(16.dp)
+//	) {
+//		Text(
+//			text = "Status Aktuator",
+//			style = MaterialTheme.typography.titleSmall,
+//			modifier = Modifier.align(Alignment.CenterHorizontally)
+//		)
+//
+//		Spacer(modifier = Modifier.height(6.dp))
+//
+//		// Grid untuk aktuator status
+//		LazyVerticalGrid(
+//			columns = GridCells.Fixed(2), // Membuat grid dengan 2 kolom
+//			verticalArrangement = Arrangement.spacedBy(4.dp),
+//			horizontalArrangement = Arrangement.spacedBy(4.dp),
+//			modifier = Modifier.fillMaxWidth()
+//		) {
+//			item {
+//				ActuatorStatusCard(
+//					title = "Aktuator Nutrisi",
+//					backgroundColor = Color(0xFFFFF59D),
+//					status = if (actuatorStatus.actuator_nutrisi == 1) "ON" else "OFF"
+//				)
+//			}
+//			item {
+//				ActuatorStatusCard(
+//					title = "Aktuator pH Up",
+//					backgroundColor = Color(0xFFFFCC80),
+//					status = if (actuatorStatus.actuator_ph_up == 1) "ON" else "OFF"
+//				)
+//			}
+//			item {
+//				ActuatorStatusCard(
+//					title = "Aktuator pH Down",
+//					backgroundColor = Color(0xFFFFCC80),
+//					status = if (actuatorStatus.actuator_ph_down == 1) "ON" else "OFF"
+//				)
+//			}
+//			item {
+//				ActuatorStatusCard(
+//					title = "Aktuator Air Baku",
+//					backgroundColor = Color(0xFFDCEDC8),
+//					status = if (actuatorStatus.actuator_air_baku == 1) "ON" else "OFF"
+//				)
+//			}
+//			item {
+//				ActuatorStatusCard(
+//					title = "Aktuator Pompa 1",
+//					backgroundColor = Color(0xFFB3E5FC),
+//					status = if (actuatorStatus.actuator_pompa_utama_1 == 1) "ON" else "OFF"
+//				)
+//			}
+//			item {
+//				ActuatorStatusCard(
+//					title = "Aktuator Pomp 2",
+//					backgroundColor = Color(0xFFFFF59D),
+//					status = if (actuatorStatus.actuator_pompa_utama_2 == 1) "ON" else "OFF"
+//				)
+//			}
+//		}
+//	}
+//}
+
+//@Composable
+//fun ActuatorStatusCard(title: String, status: String, backgroundColor: Color) {
+//	Card(
+//		modifier = Modifier
+//			.fillMaxWidth()
+//			.height(80.dp),
+//		//		elevation = 4.dp,
+//				colors = CardDefaults.cardColors(backgroundColor)
+//	) {
+//		Column(
+//			modifier = Modifier
+//				.fillMaxSize()
+//				.padding(12.dp),
+//			verticalArrangement = Arrangement.SpaceBetween
+//		) {
+//			Text(text = title, style = MaterialTheme.typography.bodyMedium)
+//			Text(
+//				text = status,
+//				style = MaterialTheme.typography.labelSmall,
+//				color = if (status == "ON") Color.DarkGray else Color.Red
+//			)
+//		}
+//	}
+//}
+
+

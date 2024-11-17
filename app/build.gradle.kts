@@ -135,12 +135,26 @@ dependencies {
 
 	implementation("com.google.code.gson:gson:2.8.8")
 
-	//Paho
-//	implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
-	implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
-
-	implementation("com.hivemq:hivemq-mqtt-client:1.2.2")
 
 	implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
 
+	// WebSocket Client (OkHttp with WebSocket support)
+	implementation("com.squareup.okhttp3:okhttp:4.12.0")
+	implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+	// JUnit untuk pengujian unit
+	testImplementation("junit:junit:4.13.2")
+
+	// MockK untuk mocking
+	testImplementation("io.mockk:mockk:1.13.7")
+
+	// Coroutines Testing
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+	// Truth untuk asertasi
+	testImplementation("com.google.truth:truth:1.1.5")
+
+	// Hilt Testing (opsional, jika Hilt digunakan di repository)
+	testImplementation("com.google.dagger:hilt-android-testing:2.48.1")
+	kaptTest("com.google.dagger:hilt-compiler:2.48.1")
 }

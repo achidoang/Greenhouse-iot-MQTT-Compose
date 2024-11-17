@@ -31,7 +31,6 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.kuliah.greenhouse_iot.presentation.common.AppBottomBar
 import com.kuliah.greenhouse_iot.presentation.navigation.AppNavigationGraph
-import com.kuliah.greenhouse_iot.presentation.viewmodel.home.HomeScreenViewModel
 import com.kuliah.greenhouse_iot.ui.theme.GreenhouseiotTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -45,21 +44,21 @@ class MainActivity : ComponentActivity() {
 		super.onCreate(savedInstanceState)
 		installSplashScreen()
 		setContent {
-			val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
-			val themeMode = homeScreenViewModel.themeMode.collectAsState().value
+//			val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
+//			val themeMode = homeScreenViewModel.themeMode.collectAsState().value
 
 
-			GreenhouseiotTheme(darkTheme = themeMode) {
+			GreenhouseiotTheme() {
 				// Create a SystemUiController instance
 				val systemUiController = rememberSystemUiController()
-				val useDarkIcons = !themeMode
+//				val useDarkIcons = !themeMode
 
 				// Set the status bar color
 				SideEffect {
-					systemUiController.setSystemBarsColor(
-						color = if (themeMode) Color(0xFF1B1A1F) else Color.Transparent,
-						darkIcons = useDarkIcons
-					)
+//					systemUiController.setSystemBarsColor(
+//						color = if (themeMode) Color(0xFF1B1A1F) else Color.Transparent,
+//						darkIcons = useDarkIcons
+//					)
 				}
 
 				Surface(
@@ -72,7 +71,7 @@ class MainActivity : ComponentActivity() {
 
 
 					MainScreen(
-						darkTheme = themeMode,
+//						darkTheme = themeMode,
 					)
 
 				}
@@ -82,7 +81,7 @@ class MainActivity : ComponentActivity() {
 	@SuppressLint("NewApi")
 	@Composable
 	fun MainScreen(
-		darkTheme: Boolean,
+//		darkTheme: Boolean,
 	) {
 		val navController = rememberNavController()
 		Scaffold(
@@ -91,7 +90,7 @@ class MainActivity : ComponentActivity() {
 			AppNavigationGraph(
 				navHostController = navController,
 				modifier = Modifier.padding(paddingValues = it),
-				darkTheme = darkTheme,
+//				darkTheme = darkTheme,
 
 			)
 		}

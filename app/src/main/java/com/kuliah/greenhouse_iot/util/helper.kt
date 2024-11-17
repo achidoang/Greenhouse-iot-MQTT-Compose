@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -31,3 +32,4 @@ fun formatDate(releaseDate: String): String {
 	val date = LocalDate.parse(releaseDate, inputFormatter)
 	return outputFormatter.format(date)
 }
+

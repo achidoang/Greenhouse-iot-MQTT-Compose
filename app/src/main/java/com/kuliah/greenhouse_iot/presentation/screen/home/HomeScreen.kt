@@ -13,7 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.kuliah.greenhouse_iot.data.model.MonitoringData
+import com.kuliah.greenhouse_iot.presentation.navigation.Route
 import com.kuliah.greenhouse_iot.presentation.viewmodel.actuator.AktuatorViewModel
+import com.kuliah.greenhouse_iot.presentation.viewmodel.auth.AuthViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.setPoint.SetPointViewModel
 
@@ -25,6 +27,7 @@ fun HomeScreen(
 	monitoringViewModel: MonitoringViewModel = hiltViewModel(),
 	aktuatorViewModel: AktuatorViewModel = hiltViewModel(),
 	setPointViewModel: SetPointViewModel = hiltViewModel(),
+	authViewModel: AuthViewModel = hiltViewModel()
 	//	darkTheme: Boolean,
 
 ) {
@@ -88,6 +91,18 @@ fun HomeScreen(
 				Text(text = "Loading SetPoint Data...")
 			}
 
+			// Logout Button
+			Button(
+				onClick = {
+					authViewModel.logout()
+					navController.navigate(Route.Login.destination) {
+						popUpTo(Route.Home.destination) { inclusive = true }
+					}
+				},
+				modifier = Modifier.fillMaxWidth()
+			) {
+				Text("Logout")
+			}
 
 		}
 

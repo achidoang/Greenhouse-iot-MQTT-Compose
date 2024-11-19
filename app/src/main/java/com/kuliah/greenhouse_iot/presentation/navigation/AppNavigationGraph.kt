@@ -1,6 +1,7 @@
 package com.kuliah.greenhouse_iot.presentation.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,11 +16,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.kuliah.greenhouse_iot.presentation.screen.actuator.ActuatorScreen
+import com.kuliah.greenhouse_iot.presentation.screen.add_user.AddUserScreen
+import com.kuliah.greenhouse_iot.presentation.screen.edit_user.EditUserScreen
 import com.kuliah.greenhouse_iot.presentation.screen.home.HomeScreen
 import com.kuliah.greenhouse_iot.presentation.screen.login.LoginScreen
-import com.kuliah.greenhouse_iot.presentation.screen.profile.ProfileScreen
+import com.kuliah.greenhouse_iot.presentation.screen.manage_user.ManageUserScreen
+import com.kuliah.greenhouse_iot.presentation.screen.profile.UserProfileScreen
 import com.kuliah.greenhouse_iot.presentation.screen.setPoint.SetPointScreen
-import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(UnstableApi::class)
@@ -27,39 +30,76 @@ import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringVie
 fun AppNavigationGraph(
 	navHostController: NavHostController,
 	modifier: Modifier,
-//	darkTheme: Boolean,
-
+	isUserLoggedIn: Boolean,
+	userRole: String
 ) {
+	Log.d("AppNavigationGraph", "userRole: $userRole")
 	NavHost(
 		navController = navHostController,
-		startDestination = Route.Home.destination
+		startDestination = if (isUserLoggedIn) Route.Home.destination else Route.Login.destination
 	) {
-
 		composable(Route.Home.destination) {
 			HomeScreen(
 				modifier = Modifier,
 				navController = navHostController,
-				// Teruskan navController ke HomeScreen
-				//				darkTheme = darkTheme, // Ubah sesuai kebutuhan Anda
 			)
 		}
 
 		composable(Route.Profile.destination) {
-			ProfileScreen()
+			Log.d("Navigation", "Navigated to Profile screen with role: $userRole")
+			if (userRole == "user") {
+				UserProfileScreen()
+			} else {
+				ManageUserScreen(
+					onAddUser = { navHostController.navigate(Route.AddUser.destination) },
+					onEditUser = { user ->
+						navHostController.navigate("${Route.EditUser.destination}/${user.id}")
+					}
+				)
+			}
 		}
 
-		composable(Route.Actuator.destination){
+
+		composable(Route.Actuator.destination) {
 			ActuatorScreen()
 		}
 
-		composable(Route.Login.destination){
-			LoginScreen()
+		composable(Route.Login.destination) {
+			LoginScreen(
+				onLoginSuccess = {
+					// Navigasi ke layar utama setelah login
+					navHostController.navigate(Route.Home.destination) {
+						popUpTo(Route.Login.destination) { inclusive = true }
+					}
+				}
+			)
 		}
 
-		composable(Route.SetPoint.destination){
+		composable(Route.SetPoint.destination) {
 			SetPointScreen()
 		}
 
-	}
+		// Rute untuk AddUserScreen
+		composable(Route.AddUser.destination) {
+			AddUserScreen(
+				onAddSuccess = {
+					// Kembali ke halaman sebelumnya setelah user berhasil ditambahkan
+					navHostController.popBackStack()
+				}
+			)
+		}
 
+		// Rute untuk EditUserScreen dengan parameter userId
+		composable("${Route.EditUser.destination}/{id}") { backStackEntry ->
+			val userId = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+			EditUserScreen(
+				userId = userId,
+				onEditSuccess = {
+					// Kembali setelah user berhasil diedit
+					navHostController.popBackStack()
+				}
+			)
+		}
+
+	}
 }

@@ -9,5 +9,12 @@ data class AverageHistory(
 	val avg_waterppm: Float,
 	val avg_waterph: Float,
 	val avg_airtemp: Float,
-	val avg_airhum: Float
+	val avg_airhum: Float,
+	val timeType: TimeType // Tambahkan tipe waktu
 )
+
+enum class TimeType {
+	DAILY,
+	WEEKLY,
+	MONTHLY
+}

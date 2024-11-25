@@ -1,10 +1,10 @@
-package com.kuliah.greenhouse_iot.data.model
+package com.kuliah.greenhouse_iot.data.model.subscribe
 
 data class SetPointData(
 	val timestamp: String,
-//	val id: Int,
 	val watertemp: Float,
 	val waterppm: Float,
 	val waterph: Float,
+	val status: String,
 	val profile: String
 )

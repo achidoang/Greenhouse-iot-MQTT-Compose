@@ -1,8 +1,8 @@
 package com.kuliah.greenhouse_iot.domain.repository
 
-import com.kuliah.greenhouse_iot.data.model.AktuatorData
-import com.kuliah.greenhouse_iot.data.model.MonitoringData
-import com.kuliah.greenhouse_iot.data.model.SetPointData
+import com.kuliah.greenhouse_iot.data.model.subscribe.AktuatorData
+import com.kuliah.greenhouse_iot.data.model.subscribe.MonitoringData
+import com.kuliah.greenhouse_iot.data.model.subscribe.SetPointData
 import com.kuliah.greenhouse_iot.util.ConnectionStatus
 import kotlinx.coroutines.flow.Flow
 

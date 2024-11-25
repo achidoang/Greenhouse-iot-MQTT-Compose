@@ -10,9 +10,9 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.kuliah.greenhouse_iot.data.model.AktuatorData
-import com.kuliah.greenhouse_iot.data.model.MonitoringData
-import com.kuliah.greenhouse_iot.data.model.SetPointData
+import com.kuliah.greenhouse_iot.data.model.subscribe.AktuatorData
+import com.kuliah.greenhouse_iot.data.model.subscribe.MonitoringData
+import com.kuliah.greenhouse_iot.data.model.subscribe.SetPointData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -47,11 +47,11 @@ class DataStoreManager @Inject constructor(private val context: Context) {
 
 		// Key untuk data setpoint
 		val SETPOINT_TIMESTAMP_KEY = stringPreferencesKey("setpoint_timestamp")
-		val SETPOINT_ID_KEY = intPreferencesKey("setpoint_id")
 		val SETPOINT_WATERTEMP_KEY = floatPreferencesKey("setpoint_watertemp")
 		val SETPOINT_WATERPPM_KEY = floatPreferencesKey("setpoint_waterppm")
 		val SETPOINT_WATERPH_KEY = floatPreferencesKey("setpoint_waterph")
 		val SETPOINT_PROFILE_KEY = stringPreferencesKey("setpoint_profile")
+		val SETPOINT_STATUS = stringPreferencesKey("setpoint_status")
 
 	}
 
@@ -164,11 +164,12 @@ class DataStoreManager @Inject constructor(private val context: Context) {
 			if (timestamp != null) {
 				SetPointData(
 					timestamp = timestamp,
-//					id = preferences[SETPOINT_ID_KEY] ?: 0,
+					//					id = preferences[SETPOINT_ID_KEY] ?: 0,
 					watertemp = preferences[SETPOINT_WATERTEMP_KEY] ?: 0f,
 					waterppm = preferences[SETPOINT_WATERPPM_KEY] ?: 0f,
 					waterph = preferences[SETPOINT_WATERPH_KEY] ?: 0f,
-					profile = preferences[SETPOINT_PROFILE_KEY] ?: ""
+					profile = preferences[SETPOINT_PROFILE_KEY] ?: "",
+					status = preferences[SETPOINT_STATUS] ?: "",
 				)
 			} else {
 				null
@@ -229,6 +230,7 @@ class DataStoreManager @Inject constructor(private val context: Context) {
 					waterppm = preferences[SETPOINT_WATERPPM_KEY] ?: 0f,
 					waterph = preferences[SETPOINT_WATERPH_KEY] ?: 0f,
 					profile = preferences[SETPOINT_PROFILE_KEY] ?: "",
+					status = preferences[SETPOINT_STATUS] ?: "",
 				)
 				dataList.add(data)
 			}

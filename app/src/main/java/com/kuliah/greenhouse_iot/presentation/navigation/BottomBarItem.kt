@@ -2,6 +2,9 @@ package com.kuliah.greenhouse_iot.presentation.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirplaneTicket
+import androidx.compose.material.icons.filled.DisplaySettings
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Input
 import androidx.compose.material.icons.filled.ManageSearch
@@ -27,19 +30,19 @@ data class BottomBarItem(
 				route = Route.Home.destination
 			),
 			BottomBarItem(
-				label = "Actuator",
-				icon = Icons.Filled.Toll,
-				route = Route.Actuator.destination
+				label = "Grafik",
+				icon = Icons.Filled.GraphicEq,
+				route = Route.Chart.destination
 			),
 			BottomBarItem(
 				label = "Profile",
-				icon = Icons.Filled.MovieFilter,
+				icon = Icons.Filled.DisplaySettings,
 				route = Route.Profile.destination
 			),
 			BottomBarItem(
-				label = "Set Point",
-				icon = Icons.Filled.Input,
-				route = Route.SetPoint.destination
+				label = "History",
+				icon = Icons.Filled.History,
+				route = Route.History.destination
 			)
 		)
 	}

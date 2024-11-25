@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,10 +22,9 @@ import androidx.compose.ui.unit.dp
 fun NoInternetComponent(
 	modifier: Modifier,
 	error: String,
-	refresh: () -> Unit
 ) {
 	Column(
-		modifier = modifier,
+		modifier = modifier.padding(16.dp),
 		verticalArrangement = Arrangement.Center,
 		horizontalAlignment = Alignment.CenterHorizontally,
 	) {
@@ -38,15 +38,9 @@ fun NoInternetComponent(
 				.padding(8.dp),
 			text = error,
 			textAlign = TextAlign.Center,
+			style = MaterialTheme.typography.bodyLarge
 		)
-		OutlinedButton(
-			onClick = {
-				refresh()
-			},
-			content = {
-				Text(text = "Retry")
-			}
-		)
+
 	}
 }
 
@@ -57,6 +51,5 @@ fun NoInternetComponentPreview() {
 	NoInternetComponent(
 		modifier = Modifier.fillMaxSize(),
 		error = "No internet connection",
-		refresh = {}
 	)
 }

@@ -17,7 +17,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.kuliah.greenhouse_iot.presentation.screen.actuator.ActuatorScreen
 import com.kuliah.greenhouse_iot.presentation.screen.add_user.AddUserScreen
+import com.kuliah.greenhouse_iot.presentation.screen.chart.AverageHistoryScreen
+import com.kuliah.greenhouse_iot.presentation.screen.controll.CreateProfileScreen
+import com.kuliah.greenhouse_iot.presentation.screen.controll.EditProfileScreen
+import com.kuliah.greenhouse_iot.presentation.screen.controll.ProfileListScreen
 import com.kuliah.greenhouse_iot.presentation.screen.edit_user.EditUserScreen
+import com.kuliah.greenhouse_iot.presentation.screen.history.HistoryScreen
 import com.kuliah.greenhouse_iot.presentation.screen.home.HomeScreen
 import com.kuliah.greenhouse_iot.presentation.screen.login.LoginScreen
 import com.kuliah.greenhouse_iot.presentation.screen.manage_user.ManageUserScreen
@@ -45,7 +50,7 @@ fun AppNavigationGraph(
 			)
 		}
 
-		composable(Route.Profile.destination) {
+		composable(Route.Manage.destination) {
 			Log.d("Navigation", "Navigated to Profile screen with role: $userRole")
 			if (userRole == "user") {
 				UserProfileScreen()
@@ -54,7 +59,10 @@ fun AppNavigationGraph(
 					onAddUser = { navHostController.navigate(Route.AddUser.destination) },
 					onEditUser = { user ->
 						navHostController.navigate("${Route.EditUser.destination}/${user.id}")
-					}
+					},
+					onLogout = {navHostController.navigate(Route.Login.destination) {
+						popUpTo(Route.Manage.destination) { inclusive = true }
+					}}
 				)
 			}
 		}
@@ -100,6 +108,36 @@ fun AppNavigationGraph(
 				}
 			)
 		}
+
+		composable(Route.History.destination){
+			HistoryScreen()
+		}
+
+		composable(Route.Chart.destination){
+			AverageHistoryScreen()
+		}
+
+		composable(Route.Profile.destination){
+			ProfileListScreen(
+				navController = navHostController,
+			)
+		}
+
+		composable(Route.CreateProfile.destination){
+			CreateProfileScreen(
+				onProfileCreated = {navHostController.navigateUp()}
+			)
+		}
+
+		composable("${Route.EditProfile.destination}/{id}") { backStackEntry ->
+			val profileId = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+//			val profile = viewModel.getProfileById(profileId) // Implementasikan metode untuk mendapatkan profil.
+//			EditProfileScreen(
+//				profile = {},
+//				onProfileUpdated = { navHostController.popBackStack() }
+//			)
+		}
+
 
 	}
 }

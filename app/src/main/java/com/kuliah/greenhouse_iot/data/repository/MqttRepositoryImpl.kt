@@ -4,15 +4,14 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.kuliah.greenhouse_iot.data.local.datastore.DataStoreManager
-import com.kuliah.greenhouse_iot.data.model.AktuatorData
-import com.kuliah.greenhouse_iot.data.model.MonitoringData
-import com.kuliah.greenhouse_iot.data.model.SetPointData
+import com.kuliah.greenhouse_iot.data.model.subscribe.AktuatorData
+import com.kuliah.greenhouse_iot.data.model.subscribe.MonitoringData
+import com.kuliah.greenhouse_iot.data.model.subscribe.SetPointData
 import com.kuliah.greenhouse_iot.domain.repository.MqttRepository
 import com.kuliah.greenhouse_iot.util.ConnectionStatus
 import com.kuliah.greenhouse_iot.util.Constants.WEBSOCKET_URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -133,7 +132,7 @@ class MqttRepositoryImpl @Inject constructor(
 
 
 			override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-				_connectionStatus.value = ConnectionStatus.DISCONNECTED
+				_connectionStatus.value = ConnectionStatus.NO_INTERNET
 				Log.e("MqttRepositoryImpl", "WebSocket connection failed", t)
 				retryWebSocket()
 			}
@@ -228,7 +227,8 @@ class MqttRepositoryImpl @Inject constructor(
 						watertemp = dataObject.getDouble("watertemp").toFloat(),
 						waterppm = dataObject.getDouble("waterppm").toFloat(),
 						waterph = dataObject.getDouble("waterph").toFloat(),
-						profile = dataObject.getString("profile")
+						profile = dataObject.getString("profile"),
+						status = dataObject.getString("status")
 					)
 					Log.d("MqttRepositoryImpl", "Parsed SetPointData: $data")
 					dataStoreManager.saveSetPointData(data)

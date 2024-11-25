@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kuliah.greenhouse_iot.presentation.common.LottieLoading
 import com.kuliah.greenhouse_iot.presentation.screen.add_user.DropdownMenuComponent
 import com.kuliah.greenhouse_iot.presentation.viewmodel.user.UserManagementViewModel
 
@@ -53,7 +53,14 @@ fun EditUserScreen(
 	) { padding ->
 		Box(modifier = Modifier.padding(padding).fillMaxSize()) {
 			if (isLoading) {
-				CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+				Box(
+					modifier = Modifier
+						.fillMaxSize()
+						.padding(padding),
+					contentAlignment = Alignment.Center
+				) {
+					LottieLoading()
+				}
 			} else if (currentUser != null) {
 				val user = currentUser!!
 				var username by remember { mutableStateOf(user.username) }

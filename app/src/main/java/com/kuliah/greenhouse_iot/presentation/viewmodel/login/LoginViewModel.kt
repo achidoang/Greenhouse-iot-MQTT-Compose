@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.HttpException
+import java.io.IOException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,11 +36,19 @@ class LoginViewModel @Inject constructor(
 				authDataStoreManager.saveUserRole(decodedRole)
 
 				_loginState.value = LoginState.Success
+			} catch (e: IOException) {
+				// Kesalahan koneksi internet
+				_loginState.value = LoginState.Error("No Internet")
+			} catch (e: HttpException) {
+				// Kesalahan dari server (HTTP Status Code)
+				_loginState.value = LoginState.Error("HTTP ${e.code()}")
 			} catch (e: Exception) {
-				_loginState.value = LoginState.Error(e.message ?: "An error occurred")
+				// Kesalahan lainnya
+				_loginState.value = LoginState.Error(e.message ?: "Unknown Error")
 			}
 		}
 	}
+
 
 	// Fungsi untuk decode role dari token JWT
 	private fun decodeRoleFromToken(token: String): String {

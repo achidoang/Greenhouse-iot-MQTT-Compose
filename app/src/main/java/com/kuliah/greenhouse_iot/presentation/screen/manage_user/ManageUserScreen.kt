@@ -1,8 +1,6 @@
 package com.kuliah.greenhouse_iot.presentation.screen.manage_user
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -32,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,22 +44,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kuliah.greenhouse_iot.data.model.auth.User
+import com.kuliah.greenhouse_iot.presentation.viewmodel.auth.AuthViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.user.UserManagementViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageUserScreen(
-	viewModel: UserManagementViewModel = hiltViewModel(),
+	userManagementViewModel: UserManagementViewModel = hiltViewModel(),
+	authViewModel: AuthViewModel = hiltViewModel(),
 	onAddUser: () -> Unit,
-	onEditUser: (User) -> Unit
+	onEditUser: (User) -> Unit,
+	onLogout: () -> Unit
 ) {
-	val userList by viewModel.userList.collectAsState()
-	val isLoading by viewModel.isLoading.collectAsState()
-	val errorMessage by viewModel.errorMessage.collectAsState()
+	val userList by userManagementViewModel.userList.collectAsState()
+	val isLoading by userManagementViewModel.isLoading.collectAsState()
+	val errorMessage by userManagementViewModel.errorMessage.collectAsState()
 	var selectedUser by remember { mutableStateOf<User?>(null) } // Untuk dialog "Read Data"
 	var userToDelete by remember { mutableStateOf<User?>(null) }
+	val isUserLoggedIn by authViewModel.isUserLoggedIn.collectAsState()
+
+	LaunchedEffect(isUserLoggedIn) {
+		if (!isUserLoggedIn) {
+			onLogout() // Navigasi ke screen login jika sudah logout
+		}
+	}
+
 	LaunchedEffect(Unit) {
-		viewModel.loadAllUsers()
+		userManagementViewModel.loadAllUsers()
 	}
 
 	Scaffold(
@@ -70,8 +78,8 @@ fun ManageUserScreen(
 			CenterAlignedTopAppBar(
 				title = { Text("Manage Users", style = MaterialTheme.typography.titleLarge) },
 				actions = {
-					IconButton(onClick = { /* Optional settings action */ }) {
-						Icon(Icons.Default.Settings, contentDescription = "Settings")
+					IconButton(onClick = { authViewModel.logout() }) { // Logout action
+						Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
 					}
 				},
 				colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -123,7 +131,7 @@ fun ManageUserScreen(
 							onReadClick = { selectedUser = user }, // Buka dialog "Read Data"
 							onEditClick = { onEditUser(user) },
 							onDeleteClick = { userToDelete = user },
-							isCurrentUser = viewModel.isCurrentUser(user)
+							isCurrentUser = userManagementViewModel.isCurrentUser(user)
 						)
 					}
 				}
@@ -142,7 +150,7 @@ fun ManageUserScreen(
 				ConfirmDeleteDialog(
 					user = user,
 					onConfirm = {
-						viewModel.deleteUser(user.id ?: 0)
+						userManagementViewModel.deleteUser(user.id ?: 0)
 						userToDelete = null // Tutup dialog setelah penghapusan
 					},
 					onDismiss = { userToDelete = null } // Tutup dialog tanpa tindakan

@@ -7,7 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MonitoringApi {
-	@GET("history/monitoring/paginated")
+	@GET("api/v2/mqtt/history/monitoring/paginated")
 	suspend fun getHistoryPaginated(
 		@Query("page") page: Int,
 		@Query("limit") limit: Int,
@@ -17,12 +17,12 @@ interface MonitoringApi {
 		@Query("order") order: String? = "DESC"
 	): PaginatedResponse<MonitoringHistory>
 
-	@GET("history/monitoring/daily")
+	@GET("api/v2/mqtt/history/monitoring/daily")
 	suspend fun getDailyAverages(): List<AverageHistory>
 
-	@GET("history/monitoring/weekly")
+	@GET("api/v2/mqtt/history/monitoring/weekly")
 	suspend fun getWeeklyAverages(): List<AverageHistory>
 
-	@GET("history/monitoring/monthly")
+	@GET("api/v2/mqtt/history/monitoring/monthly")
 	suspend fun getMonthlyAverages(): List<AverageHistory>
 }

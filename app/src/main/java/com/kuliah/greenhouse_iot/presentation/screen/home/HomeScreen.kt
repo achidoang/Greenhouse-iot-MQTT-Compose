@@ -1,318 +1,231 @@
 package com.kuliah.greenhouse_iot.presentation.screen.home
 
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.kuliah.greenhouse_iot.data.model.MonitoringData
 import com.kuliah.greenhouse_iot.presentation.navigation.Route
-import com.kuliah.greenhouse_iot.presentation.viewmodel.actuator.AktuatorViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.auth.AuthViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
-import com.kuliah.greenhouse_iot.presentation.viewmodel.setPoint.SetPointViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
 	modifier: Modifier = Modifier,
 	navController: NavHostController,
 	monitoringViewModel: MonitoringViewModel = hiltViewModel(),
-	aktuatorViewModel: AktuatorViewModel = hiltViewModel(),
-	setPointViewModel: SetPointViewModel = hiltViewModel(),
-	authViewModel: AuthViewModel = hiltViewModel()
-	//	darkTheme: Boolean,
-
 ) {
 	val monitoringData = monitoringViewModel.monitoringData.collectAsState().value
-	val aktuatorData = aktuatorViewModel.aktuatorData.collectAsState().value
-	val setPointData = setPointViewModel.setPointData.collectAsState().value
-	Log.d("HomeScreen", "Aktuator data in UI: $aktuatorData")
-	Log.d("HomeScreen", "Monitoring data in UI: $monitoringData")
-	Log.d("HomeScreen", "SetPoint data in UI: $setPointData")
 
+	val deviceStatus by monitoringViewModel.deviceStatus.collectAsState()
 
+	// Start service when the screen is loaded
+	LaunchedEffect(Unit) {
+		monitoringViewModel.startMonitoringService()
+	}
 
-	// Main UI layout
-	Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+	DisposableEffect(Unit) {
+		onDispose {
+			monitoringViewModel.stopMonitoringService()
+		}
+	}
 
-
-		Column(
+	Box(modifier = Modifier.fillMaxSize()) {
+		// Logout button
+		IconButton(
+			onClick = {
+				navController.navigate(Route.Manage.destination) {
+					popUpTo(Route.Home.destination) { inclusive = false } // Bersihkan stack hingga Home
+				}
+			},
 			modifier = Modifier
-				.fillMaxSize()
+				.align(Alignment.TopEnd)
 				.padding(16.dp)
 		) {
-			Text(text = "Data Monitoring", style = MaterialTheme.typography.labelLarge)
-
-			if (monitoringData != null) {
-				Text(text = "Suhu Air: ${monitoringData.watertemp} °C")
-				Text(text = "PPM Air: ${monitoringData.waterppm} ppm")
-				Text(text = "pH Air: ${monitoringData.waterph}")
-				Text(text = "Suhu Udara: ${monitoringData.airtemp} °C")
-				Text(text = "Kelembapan Udara: ${monitoringData.airhum}%")
-				Text(text = "Timestamp: ${monitoringData.timestamp}")
-			} else {
-				Text(text = "Mengambil data...")
-			}
-			Spacer(modifier = Modifier.height(16.dp))
-
-			// Aktuator Data Display
-			Text(text = "Data Aktuator", style = MaterialTheme.typography.labelLarge)
-			if (aktuatorData != null) {
-				Text("Nutrisi: ${if (aktuatorData.actuator_nutrisi) "On" else "Off"}")
-				Text("pH Up: ${if (aktuatorData.actuator_ph_up) "On" else "Off"}")
-				Text("pH Down: ${if (aktuatorData.actuator_ph_down) "On" else "Off"}")
-				Text("Air Baku: ${if (aktuatorData.actuator_air_baku) "On" else "Off"}")
-				Text("Pompa Utama 1: ${if (aktuatorData.actuator_pompa_utama_1) "On" else "Off"}")
-				Text("Pompa Utama 2: ${if (aktuatorData.actuator_pompa_utama_2) "On" else "Off"}")
-				Text("Timestamp: ${aktuatorData.timestamp}")
-			} else {
-				Text(text = "Loading Aktuator Data...")
-			}
-
-			Spacer(modifier = Modifier.height(16.dp))
-
-			// SetPoint Data Display
-			Text(text = "Data SetPoint", style = MaterialTheme.typography.labelLarge)
-			if (setPointData != null) {
-				Text(text = "SetPoint Suhu Air: ${setPointData.watertemp} °C")
-				Text(text = "SetPoint PPM Air: ${setPointData.waterppm} ppm")
-				Text(text = "SetPoint pH Air: ${setPointData.waterph}")
-				Text(text = "Profile: ${setPointData.profile}")
-				Text(text = "Timestamp: ${setPointData.timestamp}")
-			} else {
-				Text(text = "Loading SetPoint Data...")
-			}
-
-			// Logout Button
-			Button(
-				onClick = {
-					authViewModel.logout()
-					navController.navigate(Route.Login.destination) {
-						popUpTo(Route.Home.destination) { inclusive = true }
-					}
-				},
-				modifier = Modifier.fillMaxWidth()
-			) {
-				Text("Logout")
-			}
-
+			Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
 		}
 
-	}
-}
-
-
-
-@Composable
-fun HomeScreenGrid(data: MonitoringData) {
-	Column(
-		modifier = Modifier
-			.fillMaxWidth()
-			.padding(10.dp),
-		verticalArrangement = Arrangement.spacedBy(10.dp)
-	) {
-		Spacer(modifier = Modifier.height(5.dp))
-		Text(
-			text = "Real Time Monitoring",
-			style = MaterialTheme.typography.titleLarge,
-			modifier = Modifier.align(Alignment.CenterHorizontally)
-		)
-
-		// Grid baris pertama (Water Temperature, formasi 1 kolom)
-		Row(
-			horizontalArrangement = Arrangement.spacedBy(16.dp),
-			modifier = Modifier.fillMaxWidth()
-		) {
-			StatCard(
-				title = "Water Temp",
-				value = "${data.watertemp ?: "-"}°C",
-				backgroundColor = Color(0xFFB3E5FC),
-				modifier = Modifier.fillMaxWidth() // Satu kolom
-			)
-		}
-
-		// Grid baris kedua (Water PPM dan Water pH, formasi 2 kolom)
-		Row(
-			horizontalArrangement = Arrangement.spacedBy(16.dp),
-			modifier = Modifier.fillMaxWidth()
-		) {
-			StatCard(
-				title = "Water PPM",
-				value = "${data.waterppm ?: "-"} ppm",
-				backgroundColor = Color(0xFFDCEDC8),
-				modifier = Modifier.weight(1f) // Kolom pertama
-			)
-			StatCard(
-				title = "Water pH",
-				value = "${data.waterph ?: "-"}",
-				backgroundColor = Color(0xFFFFF59D),
-				modifier = Modifier.weight(1f) // Kolom kedua
-			)
-		}
-
-		// Grid baris ketiga (Air Temperature dan Air Humidity, formasi 2 kolom)
-		Row(
-			horizontalArrangement = Arrangement.spacedBy(16.dp),
-			modifier = Modifier.fillMaxWidth()
-		) {
-			StatCard(
-				title = "Air Temp",
-				value = "${data.airtemp ?: "-"}°C",
-				backgroundColor = Color(0xFFFFCC80),
-				modifier = Modifier.weight(1f) // Kolom pertama
-			)
-			StatCard(
-				title = "Air Humidity",
-				value = "${data.airhum ?: "-"}%",
-				backgroundColor = Color(0xFFB3E5FC),
-				modifier = Modifier.weight(1f) // Kolom kedua
-			)
-		}
-
-		// Last update text
-		Text(
-			text = "Last update: 16:28:16 WIB - 23/08/2024", // ganti dengan data real-time
-			style = MaterialTheme.typography.bodySmall,
-			modifier = Modifier.align(Alignment.CenterHorizontally),
-			color = Color.Gray
-		)
-	}
-}
-
-@Composable
-fun StatCard(title: String, value: String, backgroundColor: Color, modifier: Modifier = Modifier) {
-	Card(
-		modifier = modifier
-			.height(100.dp),
-		colors = CardDefaults.cardColors(backgroundColor)
-	) {
 		Column(
 			modifier = Modifier
 				.fillMaxSize()
 				.padding(16.dp),
-			verticalArrangement = Arrangement.SpaceBetween
+			horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			Text(text = title, style = MaterialTheme.typography.bodyMedium)
-			Text(text = value, style = MaterialTheme.typography.labelLarge)
+			Spacer(modifier = Modifier.height(30.dp))
+
+			Text(
+				text = "Data Monitoring",
+				style = MaterialTheme.typography.titleLarge,
+				modifier = Modifier.padding(bottom = 16.dp)
+			)
+
+			if (monitoringData != null) {
+				// PPM data at the top
+				Spacer(modifier = Modifier.height(10.dp))
+
+				MonitoringCircle(
+					value = monitoringData.waterppm,
+					maxValue = 1000f,
+					label = "PPM Air",
+					unit = "ppm",
+					size = 150.dp, // Size for main data
+					fontSize = MaterialTheme.typography.titleLarge.fontSize // Larger font
+				)
+
+				Spacer(modifier = Modifier.height(24.dp))
+
+				// pH Air and Suhu Air below PPM
+				Row(
+					modifier = Modifier.fillMaxWidth(),
+					horizontalArrangement = Arrangement.SpaceAround
+				) {
+					MonitoringCircle(
+						value = monitoringData.waterph,
+						maxValue = 14f,
+						label = "pH Air",
+						size = 70.dp,
+						fontSize = MaterialTheme.typography.bodyMedium.fontSize
+					)
+					MonitoringCircle(
+						value = monitoringData.watertemp,
+						maxValue = 50f,
+						label = "Suhu Air",
+						unit = "°C",
+						size = 70.dp,
+						fontSize = MaterialTheme.typography.bodyMedium.fontSize
+					)
+				}
+
+				Spacer(modifier = Modifier.height(24.dp))
+
+				// Suhu Udara and Kelembapan Udara below pH Air and Suhu Air
+				Row(
+					modifier = Modifier.fillMaxWidth(),
+					horizontalArrangement = Arrangement.SpaceAround
+				) {
+					MonitoringCircle(
+						value = monitoringData.airtemp,
+						maxValue = 100f,
+						label = "Suhu Udara",
+						unit = "°C",
+						size = 70.dp,
+						fontSize = MaterialTheme.typography.bodyMedium.fontSize
+					)
+					MonitoringCircle(
+						value = monitoringData.airhum,
+						maxValue = 100f,
+						label = "Kelembapan",
+						unit = "%",
+						size = 70.dp,
+						fontSize = MaterialTheme.typography.bodyMedium.fontSize
+					)
+				}
+
+				Spacer(modifier = Modifier.height(24.dp))
+
+				// Timestamp
+				val formattedTimestamp = monitoringData.timestamp.let {
+					try {
+						val instant = java.time.Instant.parse(it)
+						val dateTime = java.time.LocalDateTime.ofInstant(
+							instant,
+							java.time.ZoneId.systemDefault()
+						)
+						java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm:ss")
+							.format(dateTime)
+					} catch (e: Exception) {
+						"Invalid Date"
+					}
+				}
+
+				Text(
+					text = "Last Update: $formattedTimestamp",
+					style = MaterialTheme.typography.bodySmall,
+					color = Color.Gray
+				)
+
+				// kode ini benar, ketika tidak ada data dalam 10 detik maka device dinyatakan offline, namun masih salah, ketika hp saya tidak ada internet, dia tidak menampilkan no internet connection
+				// Menampilkan status perangkat
+				Text(
+					text = "Device Status: $deviceStatus",
+					style = MaterialTheme.typography.bodyMedium,
+					color = when (deviceStatus) {
+						"Online" -> Color.Green
+						"Offline" -> Color.Red
+						else -> Color.Yellow // Untuk No Internet
+					}
+				)
+			} else {
+				Text(text = "Mengambil data...", style = MaterialTheme.typography.bodyLarge)
+			}
 		}
 	}
 }
 
+
 @Composable
-fun ErrorDialog(message: String, onDismiss: () -> Unit) {
-	AlertDialog(
-		onDismissRequest = { onDismiss() },
-		title = { Text(text = "Error") },
-		text = { Text(text = message) },
-		confirmButton = {
-			TextButton(onClick = { onDismiss() }) {
-				Text(text = "OK")
-			}
+fun MonitoringCircle(
+	value: Float,
+	maxValue: Float,
+	label: String,
+	unit: String = "",
+	size: Dp = 100.dp,
+	fontSize: TextUnit = MaterialTheme.typography.bodyLarge.fontSize
+) {
+	val progress = value / maxValue
+
+	Box(
+		modifier = Modifier.size(size),
+		contentAlignment = Alignment.Center
+	) {
+		// Circular Progress Indicator
+		Canvas(modifier = Modifier.fillMaxSize()) {
+			drawArc(
+				color = Color(0xFF03DAC5), // Warna progress
+				startAngle = -90f,
+				sweepAngle = 360 * progress,
+				useCenter = false,
+				style = Stroke(
+					width = (size / 12).toPx(),
+					cap = StrokeCap.Round
+				) // Adjust stroke size
+			)
 		}
-	)
+
+		// Circle Content
+		Column(
+			horizontalAlignment = Alignment.CenterHorizontally,
+			verticalArrangement = Arrangement.Center
+		) {
+			Text(
+				text = value.toInt().toString(),
+				style = MaterialTheme.typography.bodyLarge.copy(fontSize = fontSize)
+			)
+			if (unit.isNotEmpty()) {
+				Text(
+					text = unit,
+					style = MaterialTheme.typography.bodySmall.copy(fontSize = fontSize / 1.5),
+					color = Color.Gray
+				)
+			}
+			Text(
+				text = label,
+				style = MaterialTheme.typography.bodySmall.copy(fontSize = fontSize / 1.5),
+				color = Color.Gray
+			)
+		}
+	}
 }
-
-
-
-//@Composable
-//fun ActuatorStatusGrid(actuatorStatus: ActuatorStatus) {
-//	Column(
-//		modifier = Modifier
-//			.fillMaxWidth()
-//			.padding(16.dp)
-//	) {
-//		Text(
-//			text = "Status Aktuator",
-//			style = MaterialTheme.typography.titleSmall,
-//			modifier = Modifier.align(Alignment.CenterHorizontally)
-//		)
-//
-//		Spacer(modifier = Modifier.height(6.dp))
-//
-//		// Grid untuk aktuator status
-//		LazyVerticalGrid(
-//			columns = GridCells.Fixed(2), // Membuat grid dengan 2 kolom
-//			verticalArrangement = Arrangement.spacedBy(4.dp),
-//			horizontalArrangement = Arrangement.spacedBy(4.dp),
-//			modifier = Modifier.fillMaxWidth()
-//		) {
-//			item {
-//				ActuatorStatusCard(
-//					title = "Aktuator Nutrisi",
-//					backgroundColor = Color(0xFFFFF59D),
-//					status = if (actuatorStatus.actuator_nutrisi == 1) "ON" else "OFF"
-//				)
-//			}
-//			item {
-//				ActuatorStatusCard(
-//					title = "Aktuator pH Up",
-//					backgroundColor = Color(0xFFFFCC80),
-//					status = if (actuatorStatus.actuator_ph_up == 1) "ON" else "OFF"
-//				)
-//			}
-//			item {
-//				ActuatorStatusCard(
-//					title = "Aktuator pH Down",
-//					backgroundColor = Color(0xFFFFCC80),
-//					status = if (actuatorStatus.actuator_ph_down == 1) "ON" else "OFF"
-//				)
-//			}
-//			item {
-//				ActuatorStatusCard(
-//					title = "Aktuator Air Baku",
-//					backgroundColor = Color(0xFFDCEDC8),
-//					status = if (actuatorStatus.actuator_air_baku == 1) "ON" else "OFF"
-//				)
-//			}
-//			item {
-//				ActuatorStatusCard(
-//					title = "Aktuator Pompa 1",
-//					backgroundColor = Color(0xFFB3E5FC),
-//					status = if (actuatorStatus.actuator_pompa_utama_1 == 1) "ON" else "OFF"
-//				)
-//			}
-//			item {
-//				ActuatorStatusCard(
-//					title = "Aktuator Pomp 2",
-//					backgroundColor = Color(0xFFFFF59D),
-//					status = if (actuatorStatus.actuator_pompa_utama_2 == 1) "ON" else "OFF"
-//				)
-//			}
-//		}
-//	}
-//}
-
-//@Composable
-//fun ActuatorStatusCard(title: String, status: String, backgroundColor: Color) {
-//	Card(
-//		modifier = Modifier
-//			.fillMaxWidth()
-//			.height(80.dp),
-//		//		elevation = 4.dp,
-//				colors = CardDefaults.cardColors(backgroundColor)
-//	) {
-//		Column(
-//			modifier = Modifier
-//				.fillMaxSize()
-//				.padding(12.dp),
-//			verticalArrangement = Arrangement.SpaceBetween
-//		) {
-//			Text(text = title, style = MaterialTheme.typography.bodyMedium)
-//			Text(
-//				text = status,
-//				style = MaterialTheme.typography.labelSmall,
-//				color = if (status == "ON") Color.DarkGray else Color.Red
-//			)
-//		}
-//	}
-//}
-
-

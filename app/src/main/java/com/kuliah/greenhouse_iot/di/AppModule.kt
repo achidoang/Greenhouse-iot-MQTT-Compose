@@ -10,13 +10,20 @@ import com.kuliah.greenhouse_iot.data.local.datastore.DataStoreManager
 import com.kuliah.greenhouse_iot.data.model.auth.AuthInterceptor
 import com.kuliah.greenhouse_iot.data.remote.api.akun.UserApi
 import com.kuliah.greenhouse_iot.data.remote.api.auth.AuthApi
+import com.kuliah.greenhouse_iot.data.remote.api.history.MonitoringApi
+import com.kuliah.greenhouse_iot.data.remote.api.profile.ProfileApi
 import com.kuliah.greenhouse_iot.data.repository.AuthRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.HistoryRepositoryImpl
+import com.kuliah.greenhouse_iot.data.repository.MonitoringRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.MqttRepositoryImpl
+import com.kuliah.greenhouse_iot.data.repository.ProfileRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.UserRepositoryImpl
+import com.kuliah.greenhouse_iot.data.websocket.WebSocketClient
 import com.kuliah.greenhouse_iot.domain.repository.AuthRepository
 import com.kuliah.greenhouse_iot.domain.repository.HistoryRepository
+import com.kuliah.greenhouse_iot.domain.repository.MonitoringRepository
 import com.kuliah.greenhouse_iot.domain.repository.MqttRepository
+import com.kuliah.greenhouse_iot.domain.repository.ProfileRepository
 import com.kuliah.greenhouse_iot.domain.repository.UserRepository
 import com.kuliah.greenhouse_iot.util.Constants.BASE_API_URL
 import dagger.Module
@@ -91,10 +98,38 @@ object AppModule {
 		return retrofit.create(UserApi::class.java)
 	}
 
+	@Provides
+	@Singleton
+	fun provideProfileApi(retrofit: Retrofit): ProfileApi {
+		return retrofit.create(ProfileApi::class.java)
+	}
+
+	@Provides
+	@Singleton
+	fun provideWebSocketClient(): WebSocketClient {
+		return WebSocketClient()
+	}
+
+	@Singleton
+	@Provides
+	fun provideMonitoringApi(retrofit: Retrofit): MonitoringApi {
+		return retrofit.create(MonitoringApi::class.java)
+	}
+
+
 	@Singleton
 	@Provides
 	fun provideAuthRepository(authApi: AuthApi): AuthRepository {
 		return AuthRepositoryImpl(authApi)
+	}
+
+	@Provides
+	@Singleton
+	fun provideProfileRepository(
+		profileApi: ProfileApi,
+		webSocketClient: WebSocketClient
+	): ProfileRepository {
+		return ProfileRepositoryImpl(profileApi, webSocketClient)
 	}
 
 	@Singleton
@@ -116,6 +151,14 @@ object AppModule {
 	fun provideUserRepository(api: UserApi): UserRepository {
 		return UserRepositoryImpl(api)
 	}
+
+	@Provides
+	@Singleton
+	fun provideMonitoringRepository(api: MonitoringApi): MonitoringRepository {
+		return MonitoringRepositoryImpl(api)
+	}
+
+
 
 }
 

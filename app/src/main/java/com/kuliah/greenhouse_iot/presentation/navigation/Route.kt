@@ -8,4 +8,10 @@ sealed class Route(val destination: String) {
 	data object SetPoint : Route("setPoint")
 	data object AddUser : Route("add_user")
 	data object EditUser : Route("edit_user")
+	data object History : Route("history")
+	data object Chart : Route("chart")
+	data object Manage : Route("manage")
+	data object CreateProfile : Route("create_profile")
+	data object EditProfile : Route("edit_profile")
+
 }

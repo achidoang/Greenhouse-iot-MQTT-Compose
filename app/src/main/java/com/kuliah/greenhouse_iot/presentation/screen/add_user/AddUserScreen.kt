@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kuliah.greenhouse_iot.data.model.auth.User
+import com.kuliah.greenhouse_iot.presentation.common.LottieLoading
 import com.kuliah.greenhouse_iot.presentation.viewmodel.user.UserManagementViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,7 +55,14 @@ fun AddUserScreen(
 	) { padding ->
 		Box(modifier = Modifier.padding(padding).fillMaxSize()) {
 			if (isLoading) {
-				CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+				Box(
+					modifier = Modifier
+						.fillMaxSize()
+						.padding(padding),
+					contentAlignment = Alignment.Center
+				) {
+					LottieLoading()
+				}
 			} else {
 				Column(
 					modifier = Modifier

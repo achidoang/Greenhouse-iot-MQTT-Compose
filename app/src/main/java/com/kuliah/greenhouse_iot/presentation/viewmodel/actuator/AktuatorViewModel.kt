@@ -3,7 +3,7 @@ package com.kuliah.greenhouse_iot.presentation.viewmodel.actuator
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kuliah.greenhouse_iot.data.model.AktuatorData
+import com.kuliah.greenhouse_iot.data.model.subscribe.AktuatorData
 import com.kuliah.greenhouse_iot.domain.usecases.subscribe_mqtt.SubscribeAktuatorUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

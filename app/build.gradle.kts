@@ -157,4 +157,10 @@ dependencies {
 	// Hilt Testing (opsional, jika Hilt digunakan di repository)
 	testImplementation("com.google.dagger:hilt-android-testing:2.48.1")
 	kaptTest("com.google.dagger:hilt-compiler:2.48.1")
+
+
+	implementation("com.github.madrapps:plot:0.1.1")
+
+	implementation("com.airbnb.android:lottie-compose:6.1.0")
+
 }

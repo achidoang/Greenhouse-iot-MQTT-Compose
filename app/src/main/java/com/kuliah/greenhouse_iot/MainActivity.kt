@@ -36,6 +36,7 @@ import com.kuliah.greenhouse_iot.presentation.common.AppBottomBar
 import com.kuliah.greenhouse_iot.presentation.navigation.AppNavigationGraph
 import com.kuliah.greenhouse_iot.presentation.navigation.Route
 import com.kuliah.greenhouse_iot.presentation.viewmodel.auth.AuthViewModel
+import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
 import com.kuliah.greenhouse_iot.ui.theme.GreenhouseiotTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.map
@@ -47,10 +48,13 @@ class MainActivity : ComponentActivity() {
 	lateinit var authDataStoreManager: AuthDataStoreManager
 
 
+
 	@RequiresApi(Build.VERSION_CODES.O)
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		installSplashScreen()
+
+
 		setContent {
 //			val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
 //			val themeMode = homeScreenViewModel.themeMode.collectAsState().value
@@ -90,7 +94,15 @@ class MainActivity : ComponentActivity() {
 
 		val navController = rememberNavController()
 		val authViewModel: AuthViewModel = hiltViewModel()
+		val monitoringViewModel: MonitoringViewModel = hiltViewModel()
 		val isUserLoggedIn by authViewModel.isUserLoggedIn.collectAsState()
+
+		// Mulai layanan di dalam LaunchedEffect
+		// realita kode ini ketika ada data maka dinyatakan device connected, namun ketika tidak ada data tetap device connected, tapi ketika tidak ada jaringan internet baru dinyatakan device offline
+
+		LaunchedEffect(Unit) {
+			monitoringViewModel.startMonitoringService()
+		}
 
 		LaunchedEffect(isUserLoggedIn) {
 			if (!isUserLoggedIn) {

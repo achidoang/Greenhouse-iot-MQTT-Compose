@@ -1,9 +1,7 @@
 package com.kuliah.greenhouse_iot.domain.usecases.subscribe_mqtt
 
 import android.util.Log
-import com.kuliah.greenhouse_iot.data.model.AktuatorData
 import com.kuliah.greenhouse_iot.domain.repository.MqttRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 

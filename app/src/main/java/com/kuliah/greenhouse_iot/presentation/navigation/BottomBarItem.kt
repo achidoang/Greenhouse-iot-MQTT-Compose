@@ -43,6 +43,12 @@ data class BottomBarItem(
 				label = "History",
 				icon = Icons.Filled.History,
 				route = Route.History.destination
+			),
+
+			BottomBarItem(
+				label = "Control",
+				icon = Icons.Filled.Toll,
+				route = Route.Actuator.destination
 			)
 		)
 	}

@@ -10,8 +10,10 @@ import com.kuliah.greenhouse_iot.data.local.datastore.DataStoreManager
 import com.kuliah.greenhouse_iot.data.model.auth.AuthInterceptor
 import com.kuliah.greenhouse_iot.data.remote.api.akun.UserApi
 import com.kuliah.greenhouse_iot.data.remote.api.auth.AuthApi
+import com.kuliah.greenhouse_iot.data.remote.api.control.AktuatorApi
 import com.kuliah.greenhouse_iot.data.remote.api.history.MonitoringApi
 import com.kuliah.greenhouse_iot.data.remote.api.profile.ProfileApi
+import com.kuliah.greenhouse_iot.data.repository.AktuatorRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.AuthRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.HistoryRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.MonitoringRepositoryImpl
@@ -19,6 +21,7 @@ import com.kuliah.greenhouse_iot.data.repository.MqttRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.ProfileRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.UserRepositoryImpl
 import com.kuliah.greenhouse_iot.data.websocket.WebSocketClient
+import com.kuliah.greenhouse_iot.domain.repository.AktuatorRepository
 import com.kuliah.greenhouse_iot.domain.repository.AuthRepository
 import com.kuliah.greenhouse_iot.domain.repository.HistoryRepository
 import com.kuliah.greenhouse_iot.domain.repository.MonitoringRepository
@@ -156,6 +159,19 @@ object AppModule {
 	@Singleton
 	fun provideMonitoringRepository(api: MonitoringApi): MonitoringRepository {
 		return MonitoringRepositoryImpl(api)
+	}
+
+
+	@Provides
+	@Singleton
+	fun provideAktuatorApi(retrofit: Retrofit): AktuatorApi {
+		return retrofit.create(AktuatorApi::class.java)
+	}
+
+	@Provides
+	@Singleton
+	fun provideAktuatorRepository(api: AktuatorApi): AktuatorRepository {
+		return AktuatorRepositoryImpl(api)
 	}
 
 

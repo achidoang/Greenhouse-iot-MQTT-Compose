@@ -1,14 +1,11 @@
-package com.kuliah.greenhouse_iot.presentation.screen.controll
+package com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -17,23 +14,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kuliah.greenhouse_iot.data.model.controll.auto.Profile
 import com.kuliah.greenhouse_iot.presentation.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun CreateProfileScreen(
-	onProfileCreated: () -> Unit,
+fun EditProfileScreen(
+	profile: Profile,
+	onProfileUpdated: () -> Unit,
 	viewModel: ProfileViewModel = hiltViewModel()
 ) {
-	var watertemp by remember { mutableStateOf(25.0) }
-	var waterppm by remember { mutableStateOf(100.0) }
-	var waterph by remember { mutableStateOf(7.0) }
-	var profileName by remember { mutableStateOf("") }
+	var watertemp by remember { mutableStateOf(profile.watertemp) }
+	var waterppm by remember { mutableStateOf(profile.waterppm) }
+	var waterph by remember { mutableStateOf(profile.waterph) }
+	var profileName by remember { mutableStateOf(profile.profile) }
 
 	Column(
 		modifier = Modifier
@@ -77,22 +73,18 @@ fun CreateProfileScreen(
 
 		Button(
 			onClick = {
-				val newProfile = Profile(
-					id = 0, // ID akan diatur oleh server
+				val updatedProfile = profile.copy(
 					watertemp = watertemp,
 					waterppm = waterppm,
 					waterph = waterph,
-					profile = profileName,
-					status = "inactive",
-					timestamp = ""
+					profile = profileName
 				)
-				viewModel.createProfile(newProfile)
-				onProfileCreated()
+				viewModel.updateProfile(profile.id, updatedProfile)
+				onProfileUpdated()
 			},
 			modifier = Modifier.fillMaxWidth()
 		) {
-			Text("Create Profile")
+			Text("Update Profile")
 		}
 	}
 }
-

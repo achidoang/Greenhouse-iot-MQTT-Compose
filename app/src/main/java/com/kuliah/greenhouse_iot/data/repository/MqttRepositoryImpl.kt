@@ -75,8 +75,13 @@ class MqttRepositoryImpl @Inject constructor(
 
 	@RequiresApi(Build.VERSION_CODES.O)
 	override fun subscribeMonitoring(): Flow<MonitoringData> = flow {
+		var lastEmittedData: MonitoringData? = null
 		dataStoreManager.getMonitoringData().collect { cachedData ->
-			if (cachedData != null) emit(cachedData) // Emit data dari DataStore jika ada
+			if (cachedData != null && cachedData != lastEmittedData) {
+				lastEmittedData = cachedData
+				Log.d("MqttRepositoryImpl", "Emitting new MonitoringData: $cachedData")
+				emit(cachedData)
+			}
 		}
 		openWebSocketConnection()
 	}

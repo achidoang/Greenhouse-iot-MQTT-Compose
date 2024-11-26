@@ -1,6 +1,5 @@
-package com.kuliah.greenhouse_iot.presentation.screen.controll
+package com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Water
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
@@ -41,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.kuliah.greenhouse_iot.data.model.controll.auto.Profile
-import com.kuliah.greenhouse_iot.presentation.common.AnimatedLoading
 import com.kuliah.greenhouse_iot.presentation.common.LottieLoading
 import com.kuliah.greenhouse_iot.presentation.navigation.Route
 import com.kuliah.greenhouse_iot.presentation.viewmodel.profile.ProfileUiState

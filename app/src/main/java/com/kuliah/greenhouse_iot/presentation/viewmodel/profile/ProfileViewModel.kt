@@ -11,10 +11,14 @@ import com.kuliah.greenhouse_iot.domain.usecases.profile.GetProfilesUseCase
 import com.kuliah.greenhouse_iot.domain.usecases.profile.ObserveProfilesUseCase
 import com.kuliah.greenhouse_iot.domain.usecases.profile.UpdateProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,11 +34,19 @@ class ProfileViewModel @Inject constructor(
 	private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
 	val uiState: StateFlow<ProfileUiState> = _uiState
 
+	private val _profiles = MutableStateFlow<List<Profile>>(emptyList())
+	val profiles: StateFlow<List<Profile>> = _profiles
+
+
+	init {
+		observeRealTimeProfiles()
+	}
 
 	fun loadProfiles() {
 		viewModelScope.launch {
 			try {
 				val profiles = getProfilesUseCase()
+				_profiles.value = profiles
 				_uiState.value = ProfileUiState.Success(profiles)
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to load profiles.")
@@ -42,21 +54,34 @@ class ProfileViewModel @Inject constructor(
 		}
 	}
 
-	fun observeRealTimeProfiles() {
+	private fun observeRealTimeProfiles() {
 		viewModelScope.launch {
 			observeProfilesUseCase()
-				.catch { _uiState.value = ProfileUiState.Error("Failed to observe profiles.") }
+				.retryWhen { cause, attempt ->
+					// Lakukan reconnect jika terjadi error pada WebSocket
+					if (cause is IOException) {
+						delay(2000) // Tunggu sebelum mencoba ulang
+						true
+					} else {
+						false
+					}
+				}
+				.catch { e ->
+					_uiState.value = ProfileUiState.Error("Failed to observe profiles: ${e.message}")
+				}
 				.collect { profiles ->
+					_profiles.value = profiles
 					_uiState.value = ProfileUiState.Success(profiles)
 				}
 		}
 	}
 
+
 	fun createProfile(profile: Profile) {
 		viewModelScope.launch {
 			try {
 				createProfileUseCase(profile)
-				loadProfiles()
+				// The observeRealTimeProfiles will update the UI
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to create profile.")
 			}
@@ -67,7 +92,7 @@ class ProfileViewModel @Inject constructor(
 		viewModelScope.launch {
 			try {
 				updateProfileUseCase(id, profile)
-				loadProfiles()
+				// The observeRealTimeProfiles will update the UI
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to update profile.")
 			}
@@ -78,7 +103,7 @@ class ProfileViewModel @Inject constructor(
 		viewModelScope.launch {
 			try {
 				deleteProfileUseCase(id)
-				loadProfiles()
+				// The observeRealTimeProfiles will update the UI
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to delete profile.")
 			}
@@ -88,14 +113,29 @@ class ProfileViewModel @Inject constructor(
 	fun activateProfile(id: Int) {
 		viewModelScope.launch {
 			try {
+				updateLocalProfileStatus(id)
 				activateProfileUseCase(id)
-				loadProfiles()
+				// UI will be updated by observeRealTimeProfiles
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to activate profile.")
 			}
 		}
 	}
+
+	private fun updateLocalProfileStatus(activatedId: Int) {
+		_profiles.update { currentProfiles ->
+			currentProfiles.map { profile ->
+				profile.copy(status = if (profile.id == activatedId) "active" else "inactive")
+			}
+		}
+		_uiState.value = ProfileUiState.Success(_profiles.value)
+	}
+
+	private fun revertLocalProfileStatus() {
+		_uiState.value = ProfileUiState.Success(_profiles.value)
+	}
 }
+
 
 sealed class ProfileUiState {
 	object Loading : ProfileUiState()

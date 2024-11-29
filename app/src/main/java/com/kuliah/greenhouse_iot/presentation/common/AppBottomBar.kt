@@ -25,18 +25,22 @@ import com.kuliah.greenhouse_iot.presentation.navigation.Route
 @Composable
 fun AppBottomBar(navController: NavHostController) {
 	val items = BottomBarItem().getBottomNavigationItems()
-
 	val navBackStackEntry by navController.currentBackStackEntryAsState()
 	val currentDestination = navBackStackEntry?.destination
+
+	// Ambil warna berdasarkan tema
+	val backgroundColor = MaterialTheme.colorScheme.surface // Warna latar Navigation Bar
+	val selectedColor = MaterialTheme.colorScheme.primary // Warna ikon dan teks aktif
+	val unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // Warna ikon dan teks tidak aktif
 
 	if (items.any { it.route == currentDestination?.route }) {
 		NavigationBar(
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(12.dp)
-				.height(64.dp)// Padding untuk jarak dari tepi layar
+				.height(64.dp)
 				.clip(RoundedCornerShape(25.dp)), // Membuat sudut melengkung
-			containerColor = Color(0xFF2D2D2D), // Warna latar belakang Navigation Bar
+			containerColor = backgroundColor // Gunakan warna tema
 		) {
 			items.forEach { item ->
 				val isSelected = currentDestination?.route == item.route
@@ -47,16 +51,14 @@ fun AppBottomBar(navController: NavHostController) {
 						Icon(
 							imageVector = item.icon,
 							contentDescription = item.label,
-							tint = if (isSelected) Color(0xFF03DAC5) // Warna orange untuk ikon aktif
-							else Color.White.copy(alpha = 0.4f) // Warna putih transparan untuk ikon tidak aktif
+							tint = if (isSelected) selectedColor else unselectedColor
 						)
 					},
 					label = {
 						Text(
 							text = item.label,
 							style = MaterialTheme.typography.labelSmall,
-							color = if (isSelected) Color(0xFF03DAC5) // Warna teks untuk item aktif
-							else Color.White.copy(alpha = 0.4f) // Warna teks untuk item tidak aktif
+							color = if (isSelected) selectedColor else unselectedColor
 						)
 					},
 					onClick = {
@@ -68,9 +70,63 @@ fun AppBottomBar(navController: NavHostController) {
 							restoreState = true
 						}
 					},
-					alwaysShowLabel = false // Menyembunyikan label saat tidak aktif
+					alwaysShowLabel = false
 				)
 			}
 		}
 	}
 }
+
+
+//@Composable
+//fun AppBottomBar(navController: NavHostController) {
+//	val items = BottomBarItem().getBottomNavigationItems()
+//
+//	val navBackStackEntry by navController.currentBackStackEntryAsState()
+//	val currentDestination = navBackStackEntry?.destination
+//
+//	if (items.any { it.route == currentDestination?.route }) {
+//		NavigationBar(
+//			modifier = Modifier
+//				.fillMaxWidth()
+//				.padding(12.dp)
+//				.height(64.dp)// Padding untuk jarak dari tepi layar
+//				.clip(RoundedCornerShape(25.dp)), // Membuat sudut melengkung
+//			containerColor = Color(0xFF2D2D2D), // Warna latar belakang Navigation Bar
+//		) {
+//			items.forEach { item ->
+//				val isSelected = currentDestination?.route == item.route
+//
+//				NavigationBarItem(
+//					selected = isSelected,
+//					icon = {
+//						Icon(
+//							imageVector = item.icon,
+//							contentDescription = item.label,
+//							tint = if (isSelected) Color(0xFF03DAC5) // Warna orange untuk ikon aktif
+//							else Color.White.copy(alpha = 0.4f) // Warna putih transparan untuk ikon tidak aktif
+//						)
+//					},
+//					label = {
+//						Text(
+//							text = item.label,
+//							style = MaterialTheme.typography.labelSmall,
+//							color = if (isSelected) Color(0xFF03DAC5) // Warna teks untuk item aktif
+//							else Color.White.copy(alpha = 0.4f) // Warna teks untuk item tidak aktif
+//						)
+//					},
+//					onClick = {
+//						navController.navigate(item.route) {
+//							popUpTo(navController.graph.findStartDestination().id) {
+//								saveState = true
+//							}
+//							launchSingleTop = true
+//							restoreState = true
+//						}
+//					},
+//					alwaysShowLabel = false // Menyembunyikan label saat tidak aktif
+//				)
+//			}
+//		}
+//	}
+//}

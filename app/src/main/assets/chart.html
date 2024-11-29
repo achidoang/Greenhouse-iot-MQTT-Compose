@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.js Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Plugin untuk efek shadow
+        Chart.register({
+            id: 'shadow',
+            beforeDraw: (chart) => {
+                const ctx = chart.ctx;
+                chart.data.datasets.forEach((dataset, index) => {
+                    const meta = chart.getDatasetMeta(index);
+                    if (meta.hidden) return;
+
+                    meta.data.forEach((element) => {
+                        ctx.save();
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                        ctx.shadowBlur = 10;
+                        ctx.shadowOffsetX = 4;
+                        ctx.shadowOffsetY = 4;
+                        ctx.stroke();
+                        ctx.restore();
+                    });
+                });
+            },
+        });
+    </script>
+    <style>
+        :root {
+            --background-color: white; /* Background dark mode */
+            --text-color: #ffffff;
+            --chart-grid-color: #3e3e3e;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #chartCanvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 16px;
+            background-color: white;
+        }
+    </style>
+
+
+</head>
+<body style="background-color: var(--background-color, #ffffff); color: var(--text-color, #000000);">
+<canvas id="chartCanvas" style="width: 100%; max-height: 400px;"></canvas>
+
+
+<script>
+    const ctx = document.getElementById('chartCanvas').getContext('2d');
+    let chart;
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(54, 162, 235, 0.5)'); // Warna atas
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');  // Warna bawah (transparan)
+
+    function updateChart(type, labels, datasets, yMin, yMax) {
+        if (chart) {
+            chart.destroy();
+        }
+        chart = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: datasets.map((dataset, index) => ({
+                    ...dataset,
+                    borderColor: dataset.borderColor || ["red", "green", "blue", "orange"][index % 4],
+                    backgroundColor: "rgba(54, 162, 235, 0.2)"
+                }))
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color') }
+                    },
+                    y: {
+                        grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color') },
+                        min: yMin, // Mengatur nilai minimum sumbu Y
+                        max: yMax  // Mengatur nilai maksimum sumbu Y
+                    }
+                }
+            },
+            plugins: ['shadow']
+        });
+    }
+
+</script>
+</body>
+</html>

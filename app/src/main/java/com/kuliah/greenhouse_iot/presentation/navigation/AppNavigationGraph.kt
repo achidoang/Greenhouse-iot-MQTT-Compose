@@ -12,8 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.kuliah.greenhouse_iot.presentation.screen.add_user.AddUserScreen
 import com.kuliah.greenhouse_iot.presentation.screen.chart.AverageHistoryScreen
+import com.kuliah.greenhouse_iot.presentation.screen.chart.ChartScreen
+import com.kuliah.greenhouse_iot.presentation.screen.controll.ModeSelectionScreen
 import com.kuliah.greenhouse_iot.presentation.screen.controll.manual.ActuatorScreen
 import com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis.CreateProfileScreen
+import com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis.EditProfileScreen
 import com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis.ProfileListScreen
 import com.kuliah.greenhouse_iot.presentation.screen.edit_user.EditUserScreen
 import com.kuliah.greenhouse_iot.presentation.screen.history.HistoryScreen
@@ -108,7 +111,7 @@ fun AppNavigationGraph(
 		}
 
 		composable(Route.Chart.destination){
-			AverageHistoryScreen()
+			ChartScreen()
 		}
 
 		composable(Route.Profile.destination){
@@ -125,12 +128,20 @@ fun AppNavigationGraph(
 
 		composable("${Route.EditProfile.destination}/{id}") { backStackEntry ->
 			val profileId = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
-//			val profile = viewModel.getProfileById(profileId) // Implementasikan metode untuk mendapatkan profil.
-//			EditProfileScreen(
-//				profile = {},
-//				onProfileUpdated = { navHostController.popBackStack() }
-//			)
+			EditProfileScreen(
+				onProfileUpdated = { navHostController.popBackStack() },
+				profile = TODO(),
+				viewModel = TODO()
+			)
 		}
+
+		composable(Route.ControlMode.destination) {
+			ModeSelectionScreen(
+				navController = navHostController
+			)
+		}
+
+
 
 
 	}

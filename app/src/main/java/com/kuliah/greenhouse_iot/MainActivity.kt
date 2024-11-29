@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -59,19 +60,25 @@ class MainActivity : ComponentActivity() {
 //			val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
 //			val themeMode = homeScreenViewModel.themeMode.collectAsState().value
 
+			val backgroundColor = MaterialTheme.colorScheme.background // Warna latar Navigation Bar
 
-			GreenhouseiotTheme() {
+
+			GreenhouseiotTheme(
+				darkTheme = isSystemInDarkTheme(),
+				dynamicColor = false
+			) {
 				// Create a SystemUiController instance
 				val systemUiController = rememberSystemUiController()
 //				val useDarkIcons = !themeMode
 
 				// Set the status bar color
 				SideEffect {
-//					systemUiController.setSystemBarsColor(
-//						color = if (themeMode) Color(0xFF1B1A1F) else Color.Transparent,
-//						darkIcons = useDarkIcons
-//					)
+					systemUiController.setStatusBarColor(
+						color = backgroundColor,
+						darkIcons = true // Atur true jika teks status bar harus gelap
+					)
 				}
+
 
 				Surface(
 					modifier = Modifier

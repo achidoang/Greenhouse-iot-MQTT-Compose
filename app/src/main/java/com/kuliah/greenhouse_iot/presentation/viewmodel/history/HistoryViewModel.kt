@@ -18,9 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
 	private val getHistoryPaginatedUseCase: GetHistoryPaginatedUseCase,
-	private val getDailyAveragesUseCase: GetDailyAveragesUseCase,
-	private val getWeeklyAveragesUseCase: GetWeeklyAveragesUseCase,
-	private val getMonthlyAveragesUseCase: GetMonthlyAveragesUseCase
 ) : ViewModel() {
 
 	private val _history = MutableStateFlow<List<MonitoringHistory>>(emptyList())
@@ -38,24 +35,6 @@ class HistoryViewModel @Inject constructor(
 			try {
 				val result = getHistoryPaginatedUseCase(page, limit, startDate, endDate, sortBy, order)
 				_history.value = result.data
-			} catch (e: Exception) {
-				// Tangani error
-			} finally {
-				_isLoading.value = false
-			}
-		}
-	}
-
-	fun loadAverages(type: TimeType) {
-		viewModelScope.launch {
-			_isLoading.value = true
-			try {
-				val result = when (type) {
-					TimeType.DAILY -> getDailyAveragesUseCase()
-					TimeType.WEEKLY -> getWeeklyAveragesUseCase()
-					TimeType.MONTHLY -> getMonthlyAveragesUseCase()
-				}
-				_averages.value = result
 			} catch (e: Exception) {
 				// Tangani error
 			} finally {

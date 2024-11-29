@@ -35,11 +35,6 @@ data class BottomBarItem(
 				route = Route.Chart.destination
 			),
 			BottomBarItem(
-				label = "Profile",
-				icon = Icons.Filled.DisplaySettings,
-				route = Route.Profile.destination
-			),
-			BottomBarItem(
 				label = "History",
 				icon = Icons.Filled.History,
 				route = Route.History.destination
@@ -48,7 +43,7 @@ data class BottomBarItem(
 			BottomBarItem(
 				label = "Control",
 				icon = Icons.Filled.Toll,
-				route = Route.Actuator.destination
+				route = Route.ControlMode.destination
 			)
 		)
 	}

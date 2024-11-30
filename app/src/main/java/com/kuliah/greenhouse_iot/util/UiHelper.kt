@@ -11,11 +11,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-@Composable
-fun isSmallScreenHeight(): Boolean {
-	val conf = LocalConfiguration.current
-	return conf.screenHeightDp <= 786
-}
 
 @Composable
 fun rememberImeState(): State<Boolean> {

@@ -52,7 +52,6 @@ import com.kuliah.greenhouse_iot.presentation.common.GradientBox
 import com.kuliah.greenhouse_iot.presentation.common.MyTextField
 import com.kuliah.greenhouse_iot.presentation.viewmodel.login.LoginState
 import com.kuliah.greenhouse_iot.presentation.viewmodel.login.LoginViewModel
-import com.kuliah.greenhouse_iot.util.isSmallScreenHeight
 import com.kuliah.greenhouse_iot.util.rememberImeState
 
 @Composable

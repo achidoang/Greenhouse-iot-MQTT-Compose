@@ -27,9 +27,9 @@ private val LightColorScheme = lightColorScheme(
 	primary = Color(0xFF03DAC5),
 	secondary = Color(0xFF81D4FA), // Biru muda lembut
 	tertiary = Color(0xFFA5D6A7), // Hijau pastel pucat
-	surface = Color(0xFFF0F7FA), // Putih kebiruan
+	background = Color(0xFFF0F7FA), // Putih kebiruan
 	onSurface = Color(0xFF202B2F), // Abu-abu kebiruan gelap
-	background = Color(0xFFE1F5FE), // Biru sangat pucat
+	surface = Color(0xFFF3F3FA), // Biru sangat pucat
 	tertiaryContainer = Color(0xFFB2EBF2), // Biru aqua pastel
 	onBackground = Color(0xFF37474F) // Abu-abu kebiruan
 )

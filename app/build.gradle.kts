@@ -162,13 +162,13 @@ dependencies {
 	implementation("com.github.madrapps:plot:0.1.1")
 
 	implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-	implementation("com.github.tehras:charts:0.2.4-alpha")
 
 
 	implementation("com.airbnb.android:lottie-compose:6.1.0")
 
+	implementation("com.google.accompanist:accompanist-pager:0.30.1")
+	implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
-	implementation("androidx.webkit:webkit:1.7.0")
 
 
 }

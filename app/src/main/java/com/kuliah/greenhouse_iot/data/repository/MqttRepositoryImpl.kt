@@ -172,11 +172,11 @@ class MqttRepositoryImpl @Inject constructor(
 					val timestamp = jsonObject.optString("timestamp", Instant.now().toString())
 
 					val data = MonitoringData(
-						watertemp = dataObject.getDouble("watertemp").toFloat(),
-						waterppm = dataObject.getDouble("waterppm").toFloat(),
-						waterph = dataObject.getDouble("waterph").toFloat(),
-						airtemp = dataObject.getDouble("airtemp").toFloat(),
-						airhum = dataObject.getDouble("airhum").toFloat(),
+						watertemp = dataObject.optDouble("watertemp", Double.NaN).toFloat(),
+						waterppm = dataObject.optDouble("waterppm", Double.NaN).toFloat(),
+						waterph = dataObject.optDouble("waterph", Double.NaN).toFloat(),
+						airtemp = dataObject.optDouble("airtemp", Double.NaN).toFloat(),
+						airhum = dataObject.optDouble("airhum", Double.NaN).toFloat(),
 						timestamp = timestamp
 					)
 					Log.d("MqttRepositoryImpl", "Parsed MonitoringData: $data")
@@ -187,7 +187,6 @@ class MqttRepositoryImpl @Inject constructor(
 			}
 		}
 	}
-
 
 	@RequiresApi(Build.VERSION_CODES.O)
 	private fun parseAndSaveAktuatorData(message: String) {

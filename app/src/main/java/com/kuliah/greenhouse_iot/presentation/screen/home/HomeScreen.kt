@@ -2,6 +2,7 @@ package com.kuliah.greenhouse_iot.presentation.screen.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -252,69 +253,72 @@ fun MonitoringCard(
 ) {
 
 	val textColor = MaterialTheme.colorScheme.onSurface
-	val backColor = MaterialTheme.colorScheme.surface
+	val backColor = MaterialTheme.colorScheme.background
 
 	Card(
 		modifier = Modifier
 			.fillMaxWidth()
-			.height(115.dp)
-			.aspectRatio(1.5f),
-		elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-		colors = CardDefaults.cardColors(containerColor = backColor)
+			.aspectRatio(1.9f),
+		elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+		colors = CardDefaults.cardColors(containerColor = backColor),
+		border = BorderStroke(1.dp, textColor),
 	) {
 		Row(
 			modifier = Modifier
 				.fillMaxSize()
-				.padding(10.dp),
+				.padding(6.dp),
 			horizontalArrangement = Arrangement.Start,
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			Box(
 				modifier = Modifier
-					.size(80.dp)
+					.size(65.dp)
 					.padding(8.dp)
 			) {
 				CircularProgressIndicator(
 					progress = 1f,
 					modifier = Modifier.fillMaxSize(),
 					color = Color(0xFFE0E0E0),
-					strokeWidth = 8.dp
+					strokeWidth = 6.dp
 				)
 				CircularProgressIndicator(
 					progress = value / maxValue,
 					modifier = Modifier.fillMaxSize(),
 					color = color,
-					strokeWidth = 8.dp
+					strokeWidth = 6.dp
 				)
-				Row {
-
-					Column(
-						modifier = Modifier.fillMaxSize(),
-						horizontalAlignment = Alignment.CenterHorizontally,
-						verticalArrangement = Arrangement.Center
-					) {
-						Text(
-							text = value.toInt().toString(),
-							color = textColor,
-							style = MaterialTheme.typography.titleMedium.copy(
-								fontWeight = FontWeight.Bold
-							)
+			}
+			Column(
+				modifier = Modifier.padding(8.dp),
+				horizontalAlignment = Alignment.Start,
+				verticalArrangement = Arrangement.Center,
+			){
+				Text(
+					text = label,
+					style = MaterialTheme.typography.labelMedium,
+					color = textColor,
+				)
+				Row(
+					horizontalArrangement = Arrangement.Start,
+					verticalAlignment = Alignment.CenterVertically,
+				) {
+					Text(
+						text = value.toInt().toString(),
+						color = textColor,
+						style = MaterialTheme.typography.titleMedium.copy(
+							fontWeight = FontWeight.Bold
 						)
-						if (unit.isNotEmpty()) {
-							Text(
-								text = unit,
-								style = MaterialTheme.typography.bodySmall,
-								color = textColor
-							)
-						}
+					)
+					if (unit.isNotEmpty()) {
+						Text(
+							text = unit,
+							style = MaterialTheme.typography.bodySmall,
+							color = textColor
+						)
 					}
 				}
 			}
-			Text(
-				text = label,
-				style = MaterialTheme.typography.bodySmall,
-				color = textColor,
-			)
+
 		}
 	}
 }

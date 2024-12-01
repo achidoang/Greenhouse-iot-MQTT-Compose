@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -56,6 +57,7 @@ fun HomeScreen(
 
 	val backgroundColor = MaterialTheme.colorScheme.background
 	val textColor = MaterialTheme.colorScheme.onSurface
+	val headColor = MaterialTheme.colorScheme.onBackground
 
 
 	Column(
@@ -75,8 +77,9 @@ fun HomeScreen(
 			Text(
 				text = "Monitoring Realtime",
 				style = MaterialTheme.typography.titleLarge.copy(
-					fontWeight = FontWeight.Bold
-				)
+					fontWeight = FontWeight.Bold,
+				),
+				color = headColor
 			)
 			IconButton(onClick = {
 				navController.navigate(Route.Manage.destination) {
@@ -84,7 +87,7 @@ fun HomeScreen(
 				}
 			}) {
 				Icon(
-					imageVector = Icons.Default.Settings,
+					imageVector = Icons.Default.Person2,
 					contentDescription = "Settings",
 					tint = Color.Gray
 				)
@@ -116,7 +119,7 @@ fun HomeScreen(
 						)
 					)
 					Text(
-						text = "/ 1000 ppm",
+						text = " ppm",
 						style = MaterialTheme.typography.bodyLarge,
 						color = textColor,
 						modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
@@ -292,7 +295,7 @@ fun MonitoringCard(
 				modifier = Modifier.padding(8.dp),
 				horizontalAlignment = Alignment.Start,
 				verticalArrangement = Arrangement.Center,
-			){
+			) {
 				Text(
 					text = label,
 					style = MaterialTheme.typography.labelMedium,

@@ -56,13 +56,17 @@ fun ChartScreen(viewModel: ChartViewModel = hiltViewModel()) {
 	val tabs = listOf("Temp & Hum", "Water PPM", "Water PH")
 	val coroutineScope = rememberCoroutineScope()
 
+	val backgroundColor = MaterialTheme.colorScheme.background
+	val HeadColor = MaterialTheme.colorScheme.primary
+
 	Column(
 		modifier = Modifier
 			.fillMaxSize()
 	) {
 		TabRow(
 			selectedTabIndex = pagerState.currentPage,
-			modifier = Modifier.padding(bottom = 8.dp)
+			modifier = Modifier.padding(bottom = 8.dp),
+			containerColor = backgroundColor
 		) {
 			tabs.forEachIndexed { index, title ->
 				Tab(
@@ -72,7 +76,7 @@ fun ChartScreen(viewModel: ChartViewModel = hiltViewModel()) {
 							pagerState.scrollToPage(index)
 						}
 					},
-					text = { Text(text = title) }
+					text = { Text(text = title, color = HeadColor) }
 				)
 			}
 		}
@@ -205,6 +209,8 @@ fun ChartContent(
 	title: String,
 	isWeekly: Boolean
 ) {
+	val headColor = MaterialTheme.colorScheme.onSurface
+
 	Column(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -215,18 +221,20 @@ fun ChartContent(
 			Text(
 				text = "Data tidak tersedia",
 				style = MaterialTheme.typography.bodyMedium,
+				color = headColor,
 			)
 		} else {
 			Text(
 				text = title,
 				style = MaterialTheme.typography.headlineSmall,
-				color = MaterialTheme.colorScheme.primary,
+				color = headColor,
 				modifier = Modifier.padding(bottom = 8.dp)
 			)
 
 			Card(
 				modifier = Modifier
 					.fillMaxWidth()
+					.padding(bottom = 30.dp)
 					.padding(8.dp),
 				shape = MaterialTheme.shapes.medium,
 				elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -301,7 +309,7 @@ private fun createCombinedLineChart(
 
 	// Updated colors to match the lines in the chart
 	val colors = listOf(
-		Color.rgb(0, 255, 255),  // Cyan for Water Temp
+		Color.rgb(0, 160, 160),  // Cyan for Water Temp
 		Color.rgb(0, 0, 255),    // Blue for Air Temp
 		Color.rgb(0, 255, 0)     // Green for Air Humidity
 	)
@@ -387,7 +395,7 @@ private fun updateCombinedChartWithNewData(
 
 	// Updated colors to match the lines in the chart
 	val colors = listOf(
-		Color.rgb(0, 255, 255),  // Cyan for Water Temp
+		Color.rgb(0, 160, 160),  // Cyan for Water Temp
 		Color.rgb(110, 0, 255),    // Ungu for Air Temp
 		Color.rgb(255, 230, 0)     // Yellow for Air Humidity
 	)

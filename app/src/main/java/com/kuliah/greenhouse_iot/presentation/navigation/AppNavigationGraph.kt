@@ -122,27 +122,26 @@ fun AppNavigationGraph(
 
 		composable(Route.CreateProfile.destination){
 			CreateProfileScreen(
-				onProfileCreated = {navHostController.navigateUp()}
+				onProfileCreated = { navHostController.navigateUp() },
+				navController = navHostController
 			)
 		}
 
 		composable("${Route.EditProfile.destination}/{id}") { backStackEntry ->
 			val profileId = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
 			EditProfileScreen(
+				profileId = profileId,
 				onProfileUpdated = { navHostController.popBackStack() },
-				profile = TODO(),
-				viewModel = TODO()
-			)
-		}
-
-		composable(Route.ControlMode.destination) {
-			ModeSelectionScreen(
 				navController = navHostController
 			)
 		}
 
 
 
-
+		composable(Route.ControlMode.destination) {
+			ModeSelectionScreen(
+				navController = navHostController
+			)
+		}
 	}
 }

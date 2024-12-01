@@ -132,7 +132,10 @@ object AppModule {
 		profileApi: ProfileApi,
 		webSocketClient: WebSocketClient
 	): ProfileRepository {
-		return ProfileRepositoryImpl(profileApi, webSocketClient)
+		return ProfileRepositoryImpl(
+			profileApi,
+			webSocketClient
+		)
 	}
 
 	@Singleton

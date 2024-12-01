@@ -37,7 +37,6 @@ class ProfileViewModel @Inject constructor(
 	private val _profiles = MutableStateFlow<List<Profile>>(emptyList())
 	val profiles: StateFlow<List<Profile>> = _profiles
 
-
 	init {
 		observeRealTimeProfiles()
 	}
@@ -58,9 +57,8 @@ class ProfileViewModel @Inject constructor(
 		viewModelScope.launch {
 			observeProfilesUseCase()
 				.retryWhen { cause, attempt ->
-					// Lakukan reconnect jika terjadi error pada WebSocket
 					if (cause is IOException) {
-						delay(2000) // Tunggu sebelum mencoba ulang
+						delay(2000) // Retry jika terjadi error
 						true
 					} else {
 						false
@@ -76,12 +74,11 @@ class ProfileViewModel @Inject constructor(
 		}
 	}
 
-
 	fun createProfile(profile: Profile) {
 		viewModelScope.launch {
 			try {
 				createProfileUseCase(profile)
-				// The observeRealTimeProfiles will update the UI
+				// Real-time observe akan menangani pembaruan UI
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to create profile.")
 			}
@@ -92,30 +89,32 @@ class ProfileViewModel @Inject constructor(
 		viewModelScope.launch {
 			try {
 				updateProfileUseCase(id, profile)
-				// The observeRealTimeProfiles will update the UI
+				// Real-time observe akan menangani pembaruan UI
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to update profile.")
 			}
 		}
 	}
 
+
 	fun deleteProfile(id: Int) {
 		viewModelScope.launch {
 			try {
 				deleteProfileUseCase(id)
-				// The observeRealTimeProfiles will update the UI
+				loadProfiles() // Reload data setelah profil dihapus
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to delete profile.")
 			}
 		}
 	}
 
+
 	fun activateProfile(id: Int) {
 		viewModelScope.launch {
 			try {
 				updateLocalProfileStatus(id)
 				activateProfileUseCase(id)
-				// UI will be updated by observeRealTimeProfiles
+				// Real-time observe akan menangani pembaruan UI
 			} catch (e: Exception) {
 				_uiState.value = ProfileUiState.Error("Failed to activate profile.")
 			}
@@ -125,17 +124,13 @@ class ProfileViewModel @Inject constructor(
 	private fun updateLocalProfileStatus(activatedId: Int) {
 		_profiles.update { currentProfiles ->
 			currentProfiles.map { profile ->
-				profile.copy(status = if (profile.id == activatedId) "active" else "inactive")
+				profile.copy(status = if (profile.id == activatedId) 1 else 0)
 			}
 		}
 		_uiState.value = ProfileUiState.Success(_profiles.value)
 	}
 
-	private fun revertLocalProfileStatus() {
-		_uiState.value = ProfileUiState.Success(_profiles.value)
-	}
 }
-
 
 sealed class ProfileUiState {
 	object Loading : ProfileUiState()

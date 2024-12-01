@@ -57,9 +57,6 @@ class MainActivity : ComponentActivity() {
 
 
 		setContent {
-//			val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
-//			val themeMode = homeScreenViewModel.themeMode.collectAsState().value
-
 			val backgroundColor = MaterialTheme.colorScheme.background // Warna latar Navigation Bar
 
 
@@ -69,13 +66,14 @@ class MainActivity : ComponentActivity() {
 			) {
 				// Create a SystemUiController instance
 				val systemUiController = rememberSystemUiController()
-//				val useDarkIcons = !themeMode
+				val backgroundColor = MaterialTheme.colorScheme.background
+				val useDarkIcons = !isSystemInDarkTheme() // Sesuaikan ikon berdasarkan tema gelap
 
 				// Set the status bar color
 				SideEffect {
 					systemUiController.setStatusBarColor(
 						color = backgroundColor,
-						darkIcons = true // Atur true jika teks status bar harus gelap
+						darkIcons = useDarkIcons
 					)
 				}
 

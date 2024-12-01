@@ -13,18 +13,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-	primary = Color(0xFF03DAC5),
+	primary = Color(0xFF0BD953),
 	secondary = Color(0xFF8BC34A), // Hijau terang
-	tertiary = Color(0xFF00857B), // Oranye pekat
+	tertiary = Color(0xFF00B09C), // Oranye pekat
 	surface = Color(0xFF1B1F23), // Hitam kehijauan
 	onSurface = Color(0xFFFFFFFF), // Putih terang
-	background = Color(0xFF121212), // Hitam netral
-	tertiaryContainer = Color(0xFF263238), // Abu-abu kebiruan
-	onBackground = Color(0xFFA5D6A7) // Hijau pastel terang
+	background = Color(0xFF101D25), // Hitam netral
+	tertiaryContainer = Color(0xFF232D36), // Abu-abu kebiruan
+	onBackground = Color(0xFF9FA2A7) // Hijau pastel terang
 )
 
 private val LightColorScheme = lightColorScheme(
-	primary = Color(0xFF03DAC5),
+	primary = Color(0xFF01433d),
 	secondary = Color(0xFF81D4FA), // Biru muda lembut
 	tertiary = Color(0xFFA5D6A7), // Hijau pastel pucat
 	background = Color(0xFFF0F7FA), // Putih kebiruan
@@ -36,34 +36,7 @@ private val LightColorScheme = lightColorScheme(
 
 
 
-
-//private val DarkColorScheme = darkColorScheme(
-//	primary = Color(0xFF03DAC5),
-//	secondary = PurpleGrey80,
-//	tertiary = Pink80,
-//	surface = Color(0xFF1F2633),
-//	onSurface = Color(0xFFFFFFFF),
-//	background = Color(0xFF00110f),
-//	onBackground = Color(0xFF79fdf0),
-//	tertiaryContainer = Color(0xFF01433d)
-//
-//)
-//
-//private val LightColorScheme = lightColorScheme(
-//	primary = Color(0xFF03DAC5),
-//	secondary = PurpleGrey40,
-//	tertiary = Pink40,
-//	surface = Color(0xFFEAEBEF),
-//	onSurface = Color(0xFF000000),
-//	background = Color(0xFFddfffb),
-//	onBackground = Color(0xFF003e40),
-//	tertiaryContainer = Color(0xFF79fdf0)
-
-
-
-
-
-	@Composable
+@Composable
 fun GreenhouseiotTheme(
 	darkTheme: Boolean = isSystemInDarkTheme(),
 	// Dynamic color is available on Android 12+

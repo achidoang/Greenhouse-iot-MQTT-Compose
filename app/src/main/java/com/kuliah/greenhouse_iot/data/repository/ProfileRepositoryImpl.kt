@@ -5,8 +5,11 @@ import com.kuliah.greenhouse_iot.data.model.controll.auto.Profile
 import com.kuliah.greenhouse_iot.data.remote.api.profile.ProfileApi
 import com.kuliah.greenhouse_iot.data.websocket.WebSocketClient
 import com.kuliah.greenhouse_iot.domain.repository.ProfileRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 
 class ProfileRepositoryImpl(
 	private val apiService: ProfileApi,
@@ -27,7 +30,7 @@ class ProfileRepositoryImpl(
 							waterppm = json.getDouble("waterppm"),
 							waterph = json.getDouble("waterph"),
 							profile = json.getString("profile"),
-							status = if (json.getInt("status") == 1) "active" else "inactive",
+							status = json.getInt("status"),
 							timestamp = json.getString("timestamp")
 						)
 					}

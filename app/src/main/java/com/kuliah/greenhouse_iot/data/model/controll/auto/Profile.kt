@@ -6,6 +6,6 @@ data class Profile(
 	val waterppm: Double,
 	val waterph: Double,
 	val profile: String,
-	val status: String, // "active" or "inactive"
+	val status: Int,
 	val timestamp: String
 )

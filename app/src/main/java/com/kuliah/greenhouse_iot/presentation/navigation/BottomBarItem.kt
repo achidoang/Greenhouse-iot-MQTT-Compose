@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Input
 import androidx.compose.material.icons.filled.ManageSearch
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MovieFilter
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Toll
 import androidx.compose.material.icons.filled.Tv
@@ -24,11 +25,7 @@ data class BottomBarItem(
 
 	fun getBottomNavigationItems() : List<BottomBarItem> {
 		return listOf(
-			BottomBarItem(
-				label = "Home",
-				icon = Icons.Filled.Home,
-				route = Route.Home.destination
-			),
+
 			BottomBarItem(
 				label = "Grafik",
 				icon = Icons.Filled.GraphicEq,
@@ -39,11 +36,22 @@ data class BottomBarItem(
 				icon = Icons.Filled.History,
 				route = Route.History.destination
 			),
+			BottomBarItem(
+				label = "Home",
+				icon = Icons.Filled.Home,
+				route = Route.Home.destination
+			),
 
 			BottomBarItem(
 				label = "Control",
 				icon = Icons.Filled.Toll,
 				route = Route.ControlMode.destination
+			),
+
+			BottomBarItem(
+				label = "User",
+				icon = Icons.Filled.Person,
+				route = Route.Profile.destination
 			)
 		)
 	}

@@ -2,17 +2,23 @@ package com.kuliah.greenhouse_iot.di
 
 import android.content.Context
 import androidx.annotation.OptIn
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.media3.common.util.UnstableApi
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.gson.Gson
 import com.kuliah.greenhouse_iot.data.local.datastore.AuthDataStoreManager
 import com.kuliah.greenhouse_iot.data.local.datastore.DataStoreManager
+import com.kuliah.greenhouse_iot.data.local.datastore.WeatherDataStore
 import com.kuliah.greenhouse_iot.data.model.auth.AuthInterceptor
 import com.kuliah.greenhouse_iot.data.remote.api.akun.UserApi
 import com.kuliah.greenhouse_iot.data.remote.api.auth.AuthApi
 import com.kuliah.greenhouse_iot.data.remote.api.control.AktuatorApi
 import com.kuliah.greenhouse_iot.data.remote.api.history.MonitoringApi
 import com.kuliah.greenhouse_iot.data.remote.api.profile.ProfileApi
+import com.kuliah.greenhouse_iot.data.remote.api.weather.WeatherApi
 import com.kuliah.greenhouse_iot.data.repository.AktuatorRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.AuthRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.HistoryRepositoryImpl
@@ -20,6 +26,7 @@ import com.kuliah.greenhouse_iot.data.repository.MonitoringRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.MqttRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.ProfileRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.UserRepositoryImpl
+import com.kuliah.greenhouse_iot.data.repository.WeatherRepositoryImpl
 import com.kuliah.greenhouse_iot.data.websocket.WebSocketClient
 import com.kuliah.greenhouse_iot.domain.repository.AktuatorRepository
 import com.kuliah.greenhouse_iot.domain.repository.AuthRepository
@@ -28,6 +35,7 @@ import com.kuliah.greenhouse_iot.domain.repository.MonitoringRepository
 import com.kuliah.greenhouse_iot.domain.repository.MqttRepository
 import com.kuliah.greenhouse_iot.domain.repository.ProfileRepository
 import com.kuliah.greenhouse_iot.domain.repository.UserRepository
+import com.kuliah.greenhouse_iot.domain.repository.WeatherRepository
 import com.kuliah.greenhouse_iot.util.Constants.BASE_API_URL
 import dagger.Module
 import dagger.Provides
@@ -89,6 +97,7 @@ object AppModule {
 			.addConverterFactory(GsonConverterFactory.create())
 			.build()
 	}
+
 	@Singleton
 	@Provides
 	fun provideAuthApi(retrofit: Retrofit): AuthApi {
@@ -119,6 +128,12 @@ object AppModule {
 		return retrofit.create(MonitoringApi::class.java)
 	}
 
+
+	@Provides
+	@Singleton
+	fun provideWeatherApi(retrofit: Retrofit): WeatherApi {
+		return retrofit.create(WeatherApi::class.java)
+	}
 
 	@Singleton
 	@Provides
@@ -164,6 +179,12 @@ object AppModule {
 		return MonitoringRepositoryImpl(api)
 	}
 
+	@Provides
+	@Singleton
+	fun provideWeatherRepository(api: WeatherApi): WeatherRepository {
+		return WeatherRepositoryImpl(api)
+	}
+
 
 	@Provides
 	@Singleton
@@ -177,7 +198,17 @@ object AppModule {
 		return AktuatorRepositoryImpl(api)
 	}
 
+	@Provides
+	@Singleton
+	fun provideFusedLocationProviderClient(@ApplicationContext context: Context): FusedLocationProviderClient {
+		return LocationServices.getFusedLocationProviderClient(context)
+	}
 
+	@Provides
+	@Singleton
+	fun provideGson(): Gson {
+		return Gson()
+	}
 
 }
 

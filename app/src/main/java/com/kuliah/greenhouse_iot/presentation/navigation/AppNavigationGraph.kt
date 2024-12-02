@@ -57,9 +57,11 @@ fun AppNavigationGraph(
 					onEditUser = { user ->
 						navHostController.navigate("${Route.EditUser.destination}/${user.id}")
 					},
-					onLogout = {navHostController.navigate(Route.Login.destination) {
-						popUpTo(Route.Manage.destination) { inclusive = true }
-					}}
+					onLogout = {
+						navHostController.navigate(Route.Login.destination) {
+							popUpTo(Route.Manage.destination) { inclusive = true }
+						}
+					}
 				)
 			}
 		}
@@ -106,21 +108,21 @@ fun AppNavigationGraph(
 			)
 		}
 
-		composable(Route.History.destination){
+		composable(Route.History.destination) {
 			HistoryScreen()
 		}
 
-		composable(Route.Chart.destination){
+		composable(Route.Chart.destination) {
 			ChartScreen()
 		}
 
-		composable(Route.Profile.destination){
+		composable(Route.Profile.destination) {
 			ProfileListScreen(
 				navController = navHostController,
 			)
 		}
 
-		composable(Route.CreateProfile.destination){
+		composable(Route.CreateProfile.destination) {
 			CreateProfileScreen(
 				onProfileCreated = { navHostController.navigateUp() },
 				navController = navHostController

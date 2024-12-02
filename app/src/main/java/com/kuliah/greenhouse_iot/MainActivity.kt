@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.kuliah.greenhouse_iot.data.local.datastore.AuthDataStoreManager
@@ -48,18 +49,19 @@ class MainActivity : ComponentActivity() {
 	@Inject
 	lateinit var authDataStoreManager: AuthDataStoreManager
 
-
-
 	@RequiresApi(Build.VERSION_CODES.O)
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		installSplashScreen()
 
+		// Menentukan kondisi untuk splash screen
+		val splashScreen = installSplashScreen()
+		splashScreen.setKeepOnScreenCondition {
+			// Misalnya, menunggu hingga beberapa kondisi terpenuhi
+			Thread.sleep(1100) // Simulasi loading 1,5 detik
+			false // Selesai
+		}
 
 		setContent {
-			val backgroundColor = MaterialTheme.colorScheme.background // Warna latar Navigation Bar
-
-
 			GreenhouseiotTheme(
 				darkTheme = isSystemInDarkTheme(),
 				dynamicColor = false
@@ -67,16 +69,14 @@ class MainActivity : ComponentActivity() {
 				// Create a SystemUiController instance
 				val systemUiController = rememberSystemUiController()
 				val backgroundColor = MaterialTheme.colorScheme.background
-				val useDarkIcons = !isSystemInDarkTheme() // Sesuaikan ikon berdasarkan tema gelap
+				val useDarkIcons = !isSystemInDarkTheme()
 
-				// Set the status bar color
 				SideEffect {
 					systemUiController.setStatusBarColor(
 						color = backgroundColor,
 						darkIcons = useDarkIcons
 					)
 				}
-
 
 				Surface(
 					modifier = Modifier
@@ -90,11 +90,11 @@ class MainActivity : ComponentActivity() {
 			}
 		}
 	}
+
 	@SuppressLint("NewApi")
 	@Composable
 	fun MainScreen(
 		authDataStoreManager: AuthDataStoreManager,
-//		darkTheme: Boolean,
 	) {
 
 		val navController = rememberNavController()
@@ -118,7 +118,14 @@ class MainActivity : ComponentActivity() {
 		}
 
 		Scaffold(
-			bottomBar = { AppBottomBar(navController = navController) }
+			bottomBar = {
+				val currentRoute =
+					navController.currentBackStackEntryAsState().value?.destination?.route
+				if (currentRoute != Route.Login.destination) {
+					AppBottomBar(navController = navController)
+				}
+
+			}
 		) {
 			val userRole by authDataStoreManager.getUserRole()
 				.map { it ?: "user" }

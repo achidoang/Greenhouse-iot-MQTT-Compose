@@ -54,6 +54,9 @@ android {
 dependencies {
 	implementation(libs.core.ktx)
 	implementation(libs.androidx.runtime.livedata)
+	implementation(libs.play.services.location)
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0")// or the latest version
+
 	val hilt = "2.48.1"
 	val composeNavigation = "2.7.7"
 	val hiltCompose = "1.1.0"
@@ -168,6 +171,7 @@ dependencies {
 
 	implementation("com.google.accompanist:accompanist-pager:0.30.1")
 	implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+	implementation("com.google.accompanist:accompanist-permissions:0.24.13-rc")
 
 
 

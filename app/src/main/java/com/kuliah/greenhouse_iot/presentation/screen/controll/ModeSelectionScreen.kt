@@ -17,6 +17,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,16 +30,23 @@ import androidx.navigation.NavController
 import com.kuliah.greenhouse_iot.presentation.navigation.Route
 import com.kuliah.greenhouse_iot.presentation.screen.controll.manual.ActuatorScreen
 import com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis.ProfileListScreen
+import com.kuliah.greenhouse_iot.presentation.viewmodel.mode.ModeViewModel
 
 @Composable
 fun ModeSelectionScreen(
 	navController: NavController,
+	modeViewModel: ModeViewModel = hiltViewModel()
 ) {
 	val tabs = listOf("Kontrol Otomatis", "Kontrol Manual")
 	var selectedTabIndex by remember { mutableStateOf(0) }
 
+	// Efek samping untuk POST ketika tab berubah
+	LaunchedEffect(selectedTabIndex) {
+		val automode = if (selectedTabIndex == 0) 1 else 0
+		modeViewModel.postMode(automode)
+	}
+
 	Column(modifier = Modifier.fillMaxSize()) {
-		// TabRow with custom indicator
 		TabRow(
 			selectedTabIndex = selectedTabIndex,
 			containerColor = MaterialTheme.colorScheme.background,
@@ -61,18 +69,14 @@ fun ModeSelectionScreen(
 			}
 		}
 
-		// Content based on the selected tab
 		Box(
 			modifier = Modifier
 				.fillMaxSize()
-				.padding(10.dp, 0.dp, 10.dp, 4.dp)
+				.padding(0.dp, 0.dp, 0.dp, 4.dp)
 		) {
 			when (selectedTabIndex) {
-				0 -> ProfileListScreen(
-					navController = navController
-				) // Kontrol Otomatis
+				0 -> ProfileListScreen(navController = navController) // Kontrol Otomatis
 				1 -> ActuatorScreen() // Kontrol Manual
-
 			}
 		}
 	}

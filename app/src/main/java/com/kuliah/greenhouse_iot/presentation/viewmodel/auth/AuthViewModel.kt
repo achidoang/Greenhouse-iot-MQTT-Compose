@@ -17,6 +17,9 @@ class AuthViewModel @Inject constructor(
 	private val _isUserLoggedIn = MutableStateFlow(false)
 	val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn
 
+	private val _isLoginChecked = MutableStateFlow(false)
+	val isLoginChecked: StateFlow<Boolean> = _isLoginChecked
+
 	init {
 		checkIfUserIsLoggedIn()
 	}
@@ -26,6 +29,7 @@ class AuthViewModel @Inject constructor(
 		viewModelScope.launch {
 			authDataStoreManager.getAuthToken().collect { token ->
 				_isUserLoggedIn.value = authDataStoreManager.isTokenValid(token)
+				_isLoginChecked.value = true
 				if (!_isUserLoggedIn.value) {
 					logout()
 				}

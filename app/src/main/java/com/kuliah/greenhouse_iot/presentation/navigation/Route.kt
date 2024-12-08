@@ -14,5 +14,6 @@ sealed class Route(val destination: String) {
 	data object CreateProfile : Route("create_profile")
 	data object EditProfile : Route("edit_profile")
 	data object ControlMode : Route("control_mode")
+	data object Guide : Route("guide")
 
 }

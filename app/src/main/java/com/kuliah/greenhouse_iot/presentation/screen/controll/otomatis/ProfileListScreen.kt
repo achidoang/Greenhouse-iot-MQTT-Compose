@@ -69,7 +69,7 @@ fun ProfileListScreen(
 		modifier = Modifier
 			.fillMaxSize()
 			.background(backgroundColor)
-			.padding(16.dp)
+//			.padding(16.dp)
 	) {
 		Scaffold(
 			floatingActionButton = {
@@ -102,8 +102,8 @@ fun ProfileListScreen(
 						modifier = Modifier
 							.fillMaxSize()
 							.padding(padding)
-							.padding(bottom = 80.dp),
-						verticalArrangement = Arrangement.spacedBy(12.dp)
+							.padding(bottom = 90.dp, start = 16.dp, end = 16.dp, top = 16.dp),
+						verticalArrangement = Arrangement.spacedBy(15.dp)
 					) {
 						items(profiles) { profile ->
 							ProfileCard(

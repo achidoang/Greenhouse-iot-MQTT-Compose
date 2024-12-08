@@ -55,7 +55,9 @@ dependencies {
 	implementation(libs.core.ktx)
 	implementation(libs.androidx.runtime.livedata)
 	implementation(libs.play.services.location)
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0")// or the latest version
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0")
+	implementation(libs.androidx.espresso.core)
+	implementation(libs.androidx.hilt.common) // or the latest version
 
 	val hilt = "2.48.1"
 	val composeNavigation = "2.7.7"
@@ -83,6 +85,8 @@ dependencies {
 	implementation("com.google.dagger:hilt-android:${hilt}")
 	implementation("androidx.hilt:hilt-navigation-compose:${hiltCompose}")
 	kapt("com.google.dagger:hilt-android-compiler:${hilt}")
+	kapt("androidx.hilt:hilt-compiler:1.0.0")
+
 
 	//view model
 	implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
@@ -172,6 +176,11 @@ dependencies {
 	implementation("com.google.accompanist:accompanist-pager:0.30.1")
 	implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 	implementation("com.google.accompanist:accompanist-permissions:0.24.13-rc")
+
+	implementation("androidx.work:work-runtime-ktx:2.8.1")
+	implementation("androidx.hilt:hilt-work:1.0.0")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
 
 
 

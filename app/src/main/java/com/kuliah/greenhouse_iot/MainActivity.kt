@@ -24,6 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +40,7 @@ import com.kuliah.greenhouse_iot.data.local.datastore.AuthDataStoreManager
 import com.kuliah.greenhouse_iot.presentation.common.AppBottomBar
 import com.kuliah.greenhouse_iot.presentation.navigation.AppNavigationGraph
 import com.kuliah.greenhouse_iot.presentation.navigation.Route
+import com.kuliah.greenhouse_iot.presentation.screen.splashscreen.SplashScreen
 import com.kuliah.greenhouse_iot.presentation.viewmodel.auth.AuthViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.monitoring.MonitoringViewModel
 import com.kuliah.greenhouse_iot.ui.theme.GreenhouseiotTheme
@@ -53,20 +57,12 @@ class MainActivity : ComponentActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
-		// Menentukan kondisi untuk splash screen
-		val splashScreen = installSplashScreen()
-		splashScreen.setKeepOnScreenCondition {
-			// Misalnya, menunggu hingga beberapa kondisi terpenuhi
-			Thread.sleep(1100) // Simulasi loading 1,5 detik
-			false // Selesai
-		}
-
 		setContent {
 			GreenhouseiotTheme(
 				darkTheme = isSystemInDarkTheme(),
 				dynamicColor = false
 			) {
-				// Create a SystemUiController instance
+				// Mengontrol status bar dengan Material 3
 				val systemUiController = rememberSystemUiController()
 				val backgroundColor = MaterialTheme.colorScheme.background
 				val useDarkIcons = !isSystemInDarkTheme()
@@ -96,48 +92,52 @@ class MainActivity : ComponentActivity() {
 	fun MainScreen(
 		authDataStoreManager: AuthDataStoreManager,
 	) {
-
 		val navController = rememberNavController()
 		val authViewModel: AuthViewModel = hiltViewModel()
 		val monitoringViewModel: MonitoringViewModel = hiltViewModel()
 		val isUserLoggedIn by authViewModel.isUserLoggedIn.collectAsState()
+		var showSplash by remember { mutableStateOf(true) } // Untuk mengontrol tampilan SplashScreen
 
-		// Mulai layanan di dalam LaunchedEffect
-		// realita kode ini ketika ada data maka dinyatakan device connected, namun ketika tidak ada data tetap device connected, tapi ketika tidak ada jaringan internet baru dinyatakan device offline
+		if (showSplash) {
+			// Menampilkan SplashScreen terlebih dahulu
+			SplashScreen {
+				showSplash = false // Beralih ke UI utama setelah splash selesai
+			}
+		} else {
+			// Logika utama aplikasi
+			LaunchedEffect(Unit) {
+				monitoringViewModel.startMonitoringService()
+			}
 
-		LaunchedEffect(Unit) {
-			monitoringViewModel.startMonitoringService()
-		}
-
-		LaunchedEffect(isUserLoggedIn) {
-			if (!isUserLoggedIn) {
-				navController.navigate(Route.Login.destination) {
-					popUpTo(Route.Home.destination) { inclusive = true }
+			LaunchedEffect(isUserLoggedIn) {
+				if (!isUserLoggedIn) {
+					navController.navigate(Route.Login.destination) {
+						popUpTo(Route.Home.destination) { inclusive = true }
+					}
 				}
 			}
-		}
 
-		Scaffold(
-			bottomBar = {
-				val currentRoute =
-					navController.currentBackStackEntryAsState().value?.destination?.route
-				if (currentRoute != Route.Login.destination) {
-					AppBottomBar(navController = navController)
+			Scaffold(
+				bottomBar = {
+					val currentRoute =
+						navController.currentBackStackEntryAsState().value?.destination?.route
+					if (currentRoute != Route.Login.destination) {
+						AppBottomBar(navController = navController)
+					}
 				}
-
+			) {
+				val userRole by authDataStoreManager.getUserRole()
+					.map { it ?: "user" }
+					.collectAsState(initial = "user")
+				AppNavigationGraph(
+					navHostController = navController,
+					modifier = Modifier.padding(it),
+					isUserLoggedIn = isUserLoggedIn,
+					userRole = userRole
+				)
 			}
-		) {
-			val userRole by authDataStoreManager.getUserRole()
-				.map { it ?: "user" }
-				.collectAsState(initial = "user")
-			AppNavigationGraph(
-				navHostController = navController,
-				modifier = Modifier.padding(it),
-				isUserLoggedIn = isUserLoggedIn,
-				userRole = userRole
-			)
 		}
 	}
-}
 
+}
 

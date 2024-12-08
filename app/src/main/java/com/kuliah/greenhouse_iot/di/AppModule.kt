@@ -6,22 +6,28 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.media3.common.util.UnstableApi
+import androidx.room.Room
+import androidx.work.WorkManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.kuliah.greenhouse_iot.data.local.datastore.AuthDataStoreManager
 import com.kuliah.greenhouse_iot.data.local.datastore.DataStoreManager
-import com.kuliah.greenhouse_iot.data.local.datastore.WeatherDataStore
+import com.kuliah.greenhouse_iot.data.local.datastore.GuideDataStoreManager
 import com.kuliah.greenhouse_iot.data.model.auth.AuthInterceptor
 import com.kuliah.greenhouse_iot.data.remote.api.akun.UserApi
 import com.kuliah.greenhouse_iot.data.remote.api.auth.AuthApi
 import com.kuliah.greenhouse_iot.data.remote.api.control.AktuatorApi
+import com.kuliah.greenhouse_iot.data.remote.api.guide.GuideApi
 import com.kuliah.greenhouse_iot.data.remote.api.history.MonitoringApi
+import com.kuliah.greenhouse_iot.data.remote.api.mode.ModeApi
 import com.kuliah.greenhouse_iot.data.remote.api.profile.ProfileApi
 import com.kuliah.greenhouse_iot.data.remote.api.weather.WeatherApi
 import com.kuliah.greenhouse_iot.data.repository.AktuatorRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.AuthRepositoryImpl
+import com.kuliah.greenhouse_iot.data.repository.GuideRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.HistoryRepositoryImpl
+import com.kuliah.greenhouse_iot.data.repository.ModeRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.MonitoringRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.MqttRepositoryImpl
 import com.kuliah.greenhouse_iot.data.repository.ProfileRepositoryImpl
@@ -30,7 +36,9 @@ import com.kuliah.greenhouse_iot.data.repository.WeatherRepositoryImpl
 import com.kuliah.greenhouse_iot.data.websocket.WebSocketClient
 import com.kuliah.greenhouse_iot.domain.repository.AktuatorRepository
 import com.kuliah.greenhouse_iot.domain.repository.AuthRepository
+import com.kuliah.greenhouse_iot.domain.repository.GuideRepository
 import com.kuliah.greenhouse_iot.domain.repository.HistoryRepository
+import com.kuliah.greenhouse_iot.domain.repository.ModeRepository
 import com.kuliah.greenhouse_iot.domain.repository.MonitoringRepository
 import com.kuliah.greenhouse_iot.domain.repository.MqttRepository
 import com.kuliah.greenhouse_iot.domain.repository.ProfileRepository
@@ -52,6 +60,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @OptIn(UnstableApi::class)
 object AppModule {
+
+	@Provides
+	@Singleton
+	fun provideContext(@ApplicationContext context: Context): Context {
+		return context
+	}
 
 	@Provides
 	@Singleton
@@ -135,6 +149,12 @@ object AppModule {
 		return retrofit.create(WeatherApi::class.java)
 	}
 
+	@Provides
+	@Singleton
+	fun provideModeApi(retrofit: Retrofit): ModeApi {
+		return retrofit.create(ModeApi::class.java)
+	}
+
 	@Singleton
 	@Provides
 	fun provideAuthRepository(authApi: AuthApi): AuthRepository {
@@ -185,6 +205,12 @@ object AppModule {
 		return WeatherRepositoryImpl(api)
 	}
 
+	@Provides
+	@Singleton
+	fun provideModeRepository(modeApi: ModeApi): ModeRepository {
+		return ModeRepositoryImpl(modeApi)
+	}
+
 
 	@Provides
 	@Singleton
@@ -206,10 +232,33 @@ object AppModule {
 
 	@Provides
 	@Singleton
+	fun provideGuideApi(retrofit: Retrofit): GuideApi {
+		return retrofit.create(GuideApi::class.java)
+	}
+
+	@Provides
+	@Singleton
+	fun provideGuideRepository(
+		api: GuideApi,
+		dataStoreManager: GuideDataStoreManager
+	): GuideRepository {
+		return GuideRepositoryImpl(api, dataStoreManager)
+	}
+
+
+	@Provides
+	@Singleton
 	fun provideGson(): Gson {
 		return Gson()
 	}
 
+	@Provides
+	@Singleton
+	fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+		return WorkManager.getInstance(context)
+	}
+
 }
+
 
 

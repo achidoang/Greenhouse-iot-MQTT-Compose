@@ -1,5 +1,6 @@
 package com.kuliah.greenhouse_iot.presentation.common
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -128,36 +129,50 @@ fun AppBottomBar(navController: NavHostController) {
 			}
 
 		}
-
-		Box(
-			modifier = Modifier
-				.offset(y = (-40).dp) // Menggeser ke atas
-				.size(55.dp + 15.dp) // Ukuran FAB + border
-				.background(MaterialTheme.colorScheme.background, CircleShape) // Warna border
-				.clip(CircleShape) // Membuat bentuk lingkaran
-		) {
-			FloatingActionButton(
-				onClick = {
-					navController.navigate(Route.Home.destination) {
-						popUpTo(navController.graph.findStartDestination().id) {
-							saveState = true
-						}
-						launchSingleTop = true
-						restoreState = true
-					}
-				},
+		if (showFab) {
+			val bgcolor = MaterialTheme.colorScheme.background
+			Box(
 				modifier = Modifier
-					.align(Alignment.Center) // Memposisikan FAB di tengah
-					.size(55.dp), // Ukuran FAB (lebih kecil dari border)
-				containerColor = iconColor,
-				shape = CircleShape
+					.offset(y = (-40).dp) // Geser ke atas
+					.size(55.dp + 15.dp) // Ukuran diameter lingkaran
 			) {
-				Icon(
-					imageVector = items[2].icon,
-					contentDescription = items[2].label,
-					tint = Color.White
-				)
+				Canvas(
+					modifier = Modifier
+						.fillMaxSize()
+				) {
+					// Gambarkan setengah lingkaran
+					drawArc(
+						color = bgcolor,
+						startAngle = -15f,
+						sweepAngle = 210f,
+						useCenter = true // Mengisi bagian bawah
+					)
+				}
+
+				FloatingActionButton(
+					onClick = {
+						navController.navigate(Route.Home.destination) {
+							popUpTo(navController.graph.findStartDestination().id) {
+								saveState = true
+							}
+							launchSingleTop = true
+							restoreState = true
+						}
+					},
+					modifier = Modifier
+						.align(Alignment.Center) // Posisi FAB di tengah
+						.size(55.dp), // Ukuran FAB lebih kecil dari diameter
+					containerColor = iconColor,
+					shape = CircleShape
+				) {
+					Icon(
+						imageVector = items[2].icon,
+						contentDescription = items[2].label,
+						tint = Color.White
+					)
+				}
 			}
+
 		}
 	}
 }

@@ -19,6 +19,7 @@ import com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis.CreatePro
 import com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis.EditProfileScreen
 import com.kuliah.greenhouse_iot.presentation.screen.controll.otomatis.ProfileListScreen
 import com.kuliah.greenhouse_iot.presentation.screen.edit_user.EditUserScreen
+import com.kuliah.greenhouse_iot.presentation.screen.guide.GuideScreen
 import com.kuliah.greenhouse_iot.presentation.screen.history.HistoryScreen
 import com.kuliah.greenhouse_iot.presentation.screen.home.HomeScreen
 import com.kuliah.greenhouse_iot.presentation.screen.login.LoginScreen
@@ -61,7 +62,8 @@ fun AppNavigationGraph(
 						navHostController.navigate(Route.Login.destination) {
 							popUpTo(Route.Manage.destination) { inclusive = true }
 						}
-					}
+					},
+					navController = navHostController
 				)
 			}
 		}
@@ -82,9 +84,6 @@ fun AppNavigationGraph(
 			)
 		}
 
-		composable(Route.SetPoint.destination) {
-			SetPointScreen()
-		}
 
 		// Rute untuk AddUserScreen
 		composable(Route.AddUser.destination) {
@@ -138,12 +137,14 @@ fun AppNavigationGraph(
 			)
 		}
 
-
-
 		composable(Route.ControlMode.destination) {
 			ModeSelectionScreen(
 				navController = navHostController
 			)
+		}
+
+		composable(Route.Guide.destination){
+			GuideScreen()
 		}
 	}
 }

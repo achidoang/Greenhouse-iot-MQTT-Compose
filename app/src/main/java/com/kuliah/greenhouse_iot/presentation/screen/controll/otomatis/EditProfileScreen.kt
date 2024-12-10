@@ -70,9 +70,10 @@ fun EditProfileScreen(
 			TopAppBar(
 				title = { Text("Edit Profile") },
 				navigationIcon = {
-					IconButton(onClick = { navController.navigate(Route.Profile.destination) }) {
+					IconButton(onClick = { navController.popBackStack() }) {
 						Icon(Icons.Default.ArrowBack, contentDescription = "Back")
 					}
+
 				},
 				backgroundColor = MaterialTheme.colorScheme.background,
 				contentColor = MaterialTheme.colorScheme.surface

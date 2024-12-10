@@ -46,7 +46,9 @@ import com.kuliah.greenhouse_iot.data.model.history.AverageHistory
 import com.kuliah.greenhouse_iot.presentation.common.charts.ChartDataMapper
 import com.kuliah.greenhouse_iot.presentation.viewmodel.chart.ChartViewModel
 import kotlinx.coroutines.launch
+import java.lang.reflect.Array.set
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -124,7 +126,7 @@ fun CombinedDailyChart(viewModel: ChartViewModel) {
 		xAxisLabel = "Day",
 		yAxisLabel = "Value",
 		title = "Daily Average",
-		isWeekly = false
+		labels = viewModel.dailyXAxisLabels.collectAsState().value
 	)
 }
 
@@ -140,7 +142,7 @@ fun CombinedWeeklyChart(viewModel: ChartViewModel) {
 		xAxisLabel = "Week",
 		yAxisLabel = "Value",
 		title = "Weekly Average",
-		isWeekly = true
+		labels = viewModel.weeklyXAxisLabels.collectAsState().value
 	)
 }
 
@@ -154,7 +156,7 @@ fun WaterPpmDailyChart(viewModel: ChartViewModel) {
 		xAxisLabel = "Day",
 		yAxisLabel = "PPM",
 		title = "Daily Nutrisi",
-		isWeekly = false
+		labels = viewModel.dailyXAxisLabels.collectAsState().value
 	)
 }
 
@@ -168,7 +170,7 @@ fun WaterPpmWeeklyChart(viewModel: ChartViewModel) {
 		xAxisLabel = "Week",
 		yAxisLabel = "PPM",
 		title = "Weekly Nutrisi",
-		isWeekly = true
+		labels = viewModel.weeklyXAxisLabels.collectAsState().value
 	)
 }
 
@@ -182,7 +184,7 @@ fun WaterPhDailyChart(viewModel: ChartViewModel) {
 		xAxisLabel = "Day",
 		yAxisLabel = "pH",
 		title = "Daily pH Air",
-		isWeekly = false
+		labels = viewModel.dailyXAxisLabels.collectAsState().value
 	)
 }
 
@@ -196,7 +198,7 @@ fun WaterPhWeeklyChart(viewModel: ChartViewModel) {
 		xAxisLabel = "Week",
 		yAxisLabel = "pH",
 		title = "Weekly pH Air",
-		isWeekly = true
+		labels = viewModel.weeklyXAxisLabels.collectAsState().value
 	)
 }
 
@@ -207,7 +209,8 @@ fun ChartContent(
 	xAxisLabel: String,
 	yAxisLabel: String,
 	title: String,
-	isWeekly: Boolean
+	//	isWeekly: Boolean,
+	labels: List<String>
 ) {
 	val headColor = MaterialTheme.colorScheme.onSurface
 
@@ -230,7 +233,6 @@ fun ChartContent(
 				color = headColor,
 				modifier = Modifier.padding(bottom = 8.dp)
 			)
-
 			Card(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -247,13 +249,14 @@ fun ChartContent(
 					metrics = metrics,
 					xAxisLabel = xAxisLabel,
 					yAxisLabel = yAxisLabel,
-					isWeekly = isWeekly
+					labels = labels,
+					isDarkTheme = isSystemInDarkTheme()
 				)
 			}
-
 		}
 	}
 }
+
 
 @Composable
 fun CombinedLineChartComposable(
@@ -262,10 +265,10 @@ fun CombinedLineChartComposable(
 	metrics: List<Pair<String, (AverageHistory) -> Float>>,
 	xAxisLabel: String,
 	yAxisLabel: String,
-	isWeekly: Boolean
+	labels: List<String>,
+	isDarkTheme: Boolean
 ) {
 	val context = LocalContext.current
-	val isDarkTheme = isSystemInDarkTheme()
 	AndroidView(
 		modifier = modifier,
 		factory = {
@@ -276,7 +279,7 @@ fun CombinedLineChartComposable(
 				xAxisLabel,
 				yAxisLabel,
 				isDarkTheme,
-				isWeekly
+				labels
 			)
 		},
 		update = { chart ->
@@ -287,11 +290,12 @@ fun CombinedLineChartComposable(
 				xAxisLabel,
 				yAxisLabel,
 				isDarkTheme,
-				isWeekly
+				labels
 			)
 		}
 	)
 }
+
 
 private fun createCombinedLineChart(
 	context: Context,
@@ -300,7 +304,7 @@ private fun createCombinedLineChart(
 	xAxisLabel: String,
 	yAxisLabel: String,
 	isDarkTheme: Boolean,
-	isWeekly: Boolean
+	labels: List<String>
 ): LineChart {
 	val chart = LineChart(context)
 
@@ -355,11 +359,11 @@ private fun createCombinedLineChart(
 
 		xAxis.apply {
 			position = XAxis.XAxisPosition.BOTTOM
-			textColor = textColor
 			setDrawGridLines(false)
 			granularity = 1f
 			labelRotationAngle = 0f
-			valueFormatter = createXAxisFormatter(isWeekly)
+			textColor = textColor
+			valueFormatter = createXAxisFormatter(labels)
 		}
 
 		axisLeft.apply {
@@ -388,10 +392,10 @@ private fun updateCombinedChartWithNewData(
 	xAxisLabel: String,
 	yAxisLabel: String,
 	isDarkTheme: Boolean,
-	isWeekly: Boolean
+	labels: List<String>
 ) {
-	val textColor = if (isDarkTheme) Color.WHITE else Color.BLACK
-	val backgroundColor = if (isDarkTheme) Color.DKGRAY else Color.WHITE
+	var textColor = if (isDarkTheme) Color.WHITE else Color.BLACK
+	val backgroundColor = if (isDarkTheme) Color.GRAY else Color.WHITE
 
 	// Updated colors to match the lines in the chart
 	val colors = listOf(
@@ -423,13 +427,27 @@ private fun updateCombinedChartWithNewData(
 	chart.apply {
 		this.data = LineData(dataSets)
 		setBackgroundColor(backgroundColor)
-		legend.textColor = textColor
-		xAxis.textColor = textColor
+		xAxis.apply {
+			textColor = textColor
+			valueFormatter = createXAxisFormatter(labels)
+		}
 		axisLeft.textColor = textColor
-		xAxis.valueFormatter = createXAxisFormatter(isWeekly)
+		legend.textColor = textColor
 		invalidate()
 	}
 }
+
+
+
+//private fun createXAxisFormatter(labels: List<String>): ValueFormatter {
+//	return object : ValueFormatter() {
+//		override fun getFormattedValue(value: Float): String {
+//			val index = value.toInt()
+//			return if (index in labels.indices) labels[index] else ""
+//		}
+//	}
+//}
+
 
 private fun createXAxisFormatter(isWeekly: Boolean): ValueFormatter {
 	return object : ValueFormatter() {
@@ -443,3 +461,13 @@ private fun createXAxisFormatter(isWeekly: Boolean): ValueFormatter {
 		}
 	}
 }
+
+private fun createXAxisFormatter(labels: List<String>): ValueFormatter {
+	return object : ValueFormatter() {
+		override fun getFormattedValue(value: Float): String {
+			val index = value.toInt()
+			return if (index in labels.indices) labels[index] else ""
+		}
+	}
+}
+

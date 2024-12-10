@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -91,7 +92,8 @@ fun AppNavigationGraph(
 				onAddSuccess = {
 					// Kembali ke halaman sebelumnya setelah user berhasil ditambahkan
 					navHostController.popBackStack()
-				}
+				},
+				navController = navHostController
 			)
 		}
 
@@ -103,7 +105,8 @@ fun AppNavigationGraph(
 				onEditSuccess = {
 					// Kembali setelah user berhasil diedit
 					navHostController.popBackStack()
-				}
+				},
+				navController = navHostController,
 			)
 		}
 

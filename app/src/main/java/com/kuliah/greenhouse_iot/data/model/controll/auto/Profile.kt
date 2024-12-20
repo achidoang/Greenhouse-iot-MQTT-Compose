@@ -7,5 +7,6 @@ data class Profile(
 	val waterph: Double,
 	val profile: String,
 	val status: Int,
-	val timestamp: String
+	val timestamp: String,
+	val order: Int = 0
 )

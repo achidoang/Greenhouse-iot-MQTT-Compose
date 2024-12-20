@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -41,7 +42,8 @@ fun HistoryTable(
 				modifier = Modifier
 					.horizontalScroll(scrollState)
 					.background(headColor.copy(alpha = 0.1f))
-					.padding(vertical = 12.dp)
+					.padding(vertical = 15.dp)
+
 			) {
 				HistoryTableHeader(headColor)
 			}
@@ -95,3 +97,4 @@ fun TableCell(text: String, width: Dp, color: Color, bold: Boolean = false) {
 		color = color
 	)
 }
+

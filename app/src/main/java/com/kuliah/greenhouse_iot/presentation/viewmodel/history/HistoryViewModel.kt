@@ -84,7 +84,7 @@ data class HistoryUiState(
 	val history: List<MonitoringHistory> = emptyList(),
 	val isLoading: Boolean = false,
 	val currentPage: Int = 1,
-	val itemsPerPage: Int = 10,
+	val itemsPerPage: Int = 8,
 	val totalPages: Int = 50,
 	val startDate: LocalDate? = null,
 	val endDate: LocalDate? = null,

@@ -38,7 +38,7 @@ object GuideCacheSerializer : Serializer<GuideCache> {
 	}
 }
 
-private val Context.dataStore: DataStore<GuideCache> by dataStore(
+private val Context.GuideDataStore: DataStore<GuideCache> by dataStore(
 	fileName = "guide_cache.json",
 	serializer = GuideCacheSerializer
 )
@@ -48,14 +48,14 @@ class GuideDataStoreManager @Inject constructor(
 	private val context: Context
 ) {
 
-	val guidesFlow: Flow<List<Guide>> = context.dataStore.data
+	val guidesFlow: Flow<List<Guide>> = context.GuideDataStore.data
 		.map { it.guides }
 		.onEach { guides -> Log.d("GuideDataStoreManager", "Retrieved guides from DataStore: $guides") }
 
 
 	suspend fun saveGuides(guides: List<Guide>) {
 		Log.d("GuideDataStoreManager", "Saving guides: $guides")
-		context.dataStore.updateData { GuideCache(guides) }
+		context.GuideDataStore.updateData { GuideCache(guides) }
 	}
 
 

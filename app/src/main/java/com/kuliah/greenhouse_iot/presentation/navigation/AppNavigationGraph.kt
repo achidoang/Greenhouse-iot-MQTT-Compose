@@ -46,6 +46,7 @@ fun AppNavigationGraph(
 			HomeScreen(
 				modifier = Modifier,
 				navController = navHostController,
+				userRole = userRole,
 			)
 		}
 

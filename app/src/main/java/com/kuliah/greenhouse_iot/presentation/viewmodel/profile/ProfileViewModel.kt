@@ -37,6 +37,10 @@ class ProfileViewModel @Inject constructor(
 	private val _profiles = MutableStateFlow<List<Profile>>(emptyList())
 	val profiles: StateFlow<List<Profile>> = _profiles
 
+	private val _sortType = MutableStateFlow(SortType.ALPHABETICAL)
+	val sortType: StateFlow<SortType> = _sortType
+
+
 	init {
 		observeRealTimeProfiles()
 	}
@@ -130,6 +134,20 @@ class ProfileViewModel @Inject constructor(
 		_uiState.value = ProfileUiState.Success(_profiles.value)
 	}
 
+	fun setSortType(type: SortType) {
+		_sortType.value = type
+		sortProfiles()
+	}
+
+	private fun sortProfiles() {
+		_profiles.update { currentProfiles ->
+			when (_sortType.value) {
+				SortType.ALPHABETICAL -> currentProfiles.sortedBy { it.profile }
+				SortType.TIMESTAMP -> currentProfiles.sortedByDescending { it.timestamp }
+				SortType.CUSTOM -> currentProfiles // Custom sorting handled during drag-and-drop
+			}
+		}
+	}
 }
 
 sealed class ProfileUiState {
@@ -137,3 +155,10 @@ sealed class ProfileUiState {
 	data class Success(val profiles: List<Profile>) : ProfileUiState()
 	data class Error(val message: String) : ProfileUiState()
 }
+
+enum class SortType {
+	ALPHABETICAL,
+	TIMESTAMP,
+	CUSTOM
+}
+

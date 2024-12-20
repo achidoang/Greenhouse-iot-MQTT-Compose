@@ -227,37 +227,48 @@ fun CompactMonitoringCard(
 				verticalArrangement = Arrangement.spacedBy(4.dp)
 			) {
 				Row(
-					verticalAlignment = Alignment.Bottom,
+					verticalAlignment = Alignment.CenterVertically,
+					horizontalArrangement = Arrangement.Center,
 					modifier = Modifier.fillMaxWidth()
 				) {
 					Text(
 						text = value.toInt().toString(),
 						color = headColor,
-						style = MaterialTheme.typography.titleLarge.copy(
+						style = MaterialTheme.typography.headlineLarge.copy(
 							fontWeight = FontWeight.Bold
 						)
 					)
 					if (unit.isNotEmpty()) {
 						Text(
 							text = unit,
-							style = MaterialTheme.typography.bodyMedium,
+							style = MaterialTheme.typography.titleLarge,
 							color = textColor,
 							modifier = Modifier.padding(start = 2.dp, bottom = 2.dp)
 						)
 					}
 				}
 
-				if (showProgress) {
-					LinearProgressIndicator(
-						progress = value / maxValue,
-						modifier = Modifier
-							.fillMaxWidth()
-							.height(4.dp)
-							.clip(RoundedCornerShape(2.dp)),
-						color = color,
-						trackColor = trackColor
-					)
-				}
+			}
+			if (showProgress) {
+				LinearProgressIndicator(
+					progress = value / maxValue,
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(4.dp)
+						.clip(RoundedCornerShape(2.dp)),
+					color = color,
+					trackColor = trackColor
+				)
+			} else {
+				LinearProgressIndicator(
+					progress = value / maxValue,
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(4.dp)
+						.clip(RoundedCornerShape(2.dp)),
+					color = MaterialTheme.colorScheme.tertiaryContainer,
+					trackColor = MaterialTheme.colorScheme.tertiaryContainer
+				)
 			}
 		}
 	}

@@ -84,6 +84,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
 				.fillMaxSize()
 				.padding(padding)
 				.padding(horizontal = 8.dp, vertical = 4.dp)
+				.padding(bottom = 90.dp)
 		) {
 			Card(
 				modifier = Modifier.fillMaxWidth(),
@@ -110,7 +111,6 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
 						headColor = headColor,
 						bgColor = secBgColor
 					)
-
 					SortingSection(
 						currentSortBy = uiState.sortBy,
 						currentOrder = uiState.order,
@@ -121,15 +121,22 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
 						headColor = headColor,
 						bgColor = secBgColor
 					)
+
+
 				}
 			}
 
 			if (uiState.isLoading) {
-				Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-					CircularProgressIndicator()
+				Box(
+					modifier = Modifier
+						.fillMaxSize()
+						.padding(padding),
+					contentAlignment = Alignment.Center
+				) {
+					LottieLoading()
 				}
 			} else {
-				Spacer(modifier = Modifier.height(16.dp))
+				Spacer(modifier = Modifier.height(12.dp))
 				HistoryTable(uiState.history, headColor, textColor, secBgColor)
 				PaginationSection(
 					currentPage = uiState.currentPage,
@@ -141,6 +148,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
 					headColor = headColor,
 					bgColor = secBgColor
 				)
+
 			}
 		}
 	}

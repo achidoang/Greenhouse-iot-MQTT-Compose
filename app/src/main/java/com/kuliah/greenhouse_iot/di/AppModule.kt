@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import com.kuliah.greenhouse_iot.data.local.datastore.AuthDataStoreManager
 import com.kuliah.greenhouse_iot.data.local.datastore.DataStoreManager
 import com.kuliah.greenhouse_iot.data.local.datastore.GuideDataStoreManager
+import com.kuliah.greenhouse_iot.data.local.datastore.ModePreferences
 import com.kuliah.greenhouse_iot.data.model.auth.AuthInterceptor
 import com.kuliah.greenhouse_iot.data.remote.api.akun.UserApi
 import com.kuliah.greenhouse_iot.data.remote.api.auth.AuthApi
@@ -88,8 +89,16 @@ object AppModule {
 
 	@Singleton
 	@Provides
-	fun provideAuthDataStoreManager(@ApplicationContext context: Context): AuthDataStoreManager {
+	fun provideAuthDataStoreManager(
+		@ApplicationContext context: Context
+	): AuthDataStoreManager {
 		return AuthDataStoreManager(context)
+	}
+
+	@Provides
+	@Singleton
+	fun provideModePreferences(@ApplicationContext context: Context): ModePreferences {
+		return ModePreferences(context)
 	}
 
 	@Provides

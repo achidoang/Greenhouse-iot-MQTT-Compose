@@ -35,16 +35,11 @@ import com.kuliah.greenhouse_iot.presentation.viewmodel.mode.ModeViewModel
 @Composable
 fun ModeSelectionScreen(
 	navController: NavController,
-	modeViewModel: ModeViewModel = hiltViewModel()
 ) {
-	val tabs = listOf("Kontrol Otomatis", "Kontrol Manual")
+	val tabs = listOf("Aktuator", "Profil Setpoint")
 	var selectedTabIndex by remember { mutableStateOf(0) }
 
-	// Efek samping untuk POST ketika tab berubah
-	LaunchedEffect(selectedTabIndex) {
-		val automode = if (selectedTabIndex == 0) 1 else 0
-		modeViewModel.postMode(automode)
-	}
+
 
 	Column(modifier = Modifier.fillMaxSize()) {
 		TabRow(
@@ -75,8 +70,8 @@ fun ModeSelectionScreen(
 				.padding(0.dp, 0.dp, 0.dp, 4.dp)
 		) {
 			when (selectedTabIndex) {
-				0 -> ProfileListScreen(navController = navController) // Kontrol Otomatis
-				1 -> ActuatorScreen() // Kontrol Manual
+				0 -> ActuatorScreen() // Kontrol Manual
+				1 -> ProfileListScreen(navController = navController) // Kontrol Otomatis
 			}
 		}
 	}

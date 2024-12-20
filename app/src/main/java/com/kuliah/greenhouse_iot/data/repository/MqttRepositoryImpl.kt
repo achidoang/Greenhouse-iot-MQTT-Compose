@@ -129,7 +129,7 @@ class MqttRepositoryImpl @Inject constructor(
 				Log.d("MqttRepositoryImpl", "Received message: $text")
 				when {
 					text.contains("herbalawu/monitoring") -> parseAndSaveMonitoringData(text)
-					text.contains("herbalawu/aktuator") -> parseAndSaveAktuatorData(text)
+					text.contains("herbalawu/state") -> parseAndSaveAktuatorData(text)
 					text.contains("herbalawu/setpoint") -> parseAndSaveSetPointData(text)
 					else -> Log.d("MqttRepositoryImpl", "Unknown message topic")
 				}
@@ -194,7 +194,7 @@ class MqttRepositoryImpl @Inject constructor(
 			try {
 				val jsonObject = JSONObject(message)
 				val topic = jsonObject.getString("topic")
-				if (topic == "herbalawu/aktuator") {
+				if (topic == "herbalawu/state") {
 					val dataObject = jsonObject.getJSONObject("data")
 					val timestamp = jsonObject.optString("timestamp", Instant.now().toString())
 

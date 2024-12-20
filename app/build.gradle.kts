@@ -181,7 +181,7 @@ dependencies {
 	implementation("androidx.hilt:hilt-work:1.0.0")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
-
+	implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
 
 }

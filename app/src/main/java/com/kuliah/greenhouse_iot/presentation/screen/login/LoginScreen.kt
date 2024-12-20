@@ -28,14 +28,20 @@ import androidx.compose.material.Snackbar
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -72,177 +79,23 @@ import com.kuliah.greenhouse_iot.presentation.viewmodel.login.LoginState
 import com.kuliah.greenhouse_iot.presentation.viewmodel.login.LoginViewModel
 import com.kuliah.greenhouse_iot.util.rememberImeState
 
-//@Composable
-//fun LoginScreen(
-//	viewModel: LoginViewModel = hiltViewModel(),
-//	onLoginSuccess: () -> Unit
-//) {
-//	val isImeVisible by rememberImeState()
-//	val loginState by viewModel.loginState.collectAsState()
-//
-//	var username by remember { mutableStateOf("") }
-//	var password by remember { mutableStateOf("") }
-//
-//	val scaffoldState = rememberScaffoldState()
-//
-//	val headColor = MaterialTheme.colorScheme.onSurface
-//	val textColor = MaterialTheme.colorScheme.onBackground
-//	val bgColor = MaterialTheme.colorScheme.background
-//	val secBgColor = MaterialTheme.colorScheme.tertiaryContainer
-//	val primary = MaterialTheme.colorScheme.primary
-//
-//	Scaffold(
-//		scaffoldState = scaffoldState,
-//		snackbarHost = {
-//			SnackbarHost(
-//				hostState = it,
-//				modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top),
-//				snackbar = { data ->
-//					Snackbar(
-//						snackbarData = data,
-//						backgroundColor = Color(0xFFEB5757),
-//						contentColor = headColor,
-//						modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-//					)
-//				}
-//			)
-//		}
-//	) { padding ->
-//		GradientBox(modifier = Modifier.fillMaxSize()) {
-//			Column(
-//				modifier = Modifier
-//					.fillMaxSize()
-//					.padding(padding),
-//				horizontalAlignment = Alignment.CenterHorizontally
-//			) {
-//				val animatedUpperSectionRatio by animateFloatAsState(
-//					targetValue = if (isImeVisible) 0f else 0.35f,
-//					label = "",
-//				)
-//				AnimatedVisibility(visible = !isImeVisible, enter = fadeIn(), exit = fadeOut()) {
-//					Box(
-//						modifier = Modifier
-//							.fillMaxWidth()
-//							.fillMaxHeight(animatedUpperSectionRatio),
-//						contentAlignment = Alignment.Center
-//					) {
-//						Text(
-//							text = "Welcome to AutoGreen",
-//							style = MaterialTheme.typography.headlineMedium,
-//							color = headColor
-//						)
-//					}
-//				}
-//				Column(
-//					modifier = Modifier
-//						.fillMaxSize()
-//						.clip(RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
-//						.background(bgColor),
-//					horizontalAlignment = Alignment.CenterHorizontally
-//				) {
-//					Spacer(modifier = Modifier.height(16.dp))
-//					Text(
-//						text = "Log in",
-//						style = MaterialTheme.typography.headlineMedium,
-//						color = headColor
-//					)
-//					Spacer(modifier = Modifier.height(24.dp))
-//
-//					MyTextField(
-//						modifier = Modifier.padding(horizontal = 16.dp),
-//						value = username,
-//						onValueChange = { username = it },
-//						label = "Username",
-//						keyboardOptions = KeyboardOptions.Default,
-//						keyboardActions = KeyboardActions.Default
-//					)
-//					Spacer(modifier = Modifier.height(20.dp))
-//					MyTextField(
-//						modifier = Modifier.padding(horizontal = 16.dp),
-//						value = password,
-//						onValueChange = { password = it },
-//						label = "Password",
-//						keyboardOptions = KeyboardOptions.Default,
-//						keyboardActions = KeyboardActions.Default,
-//						trailingIcon = Icons.Default.Lock
-//					)
-//					Spacer(modifier = Modifier.height(20.dp))
-//					Button(
-//						onClick = { viewModel.login(username, password) },
-//						modifier = Modifier
-//							.fillMaxWidth()
-//							.padding(horizontal = 16.dp),
-//						colors = ButtonDefaults.buttonColors(
-//							containerColor = primary,
-//							contentColor = headColor
-//						),
-//						shape = RoundedCornerShape(10.dp)
-//					) {
-//						if (loginState is LoginState.Loading) {
-//							CircularProgressIndicator(
-//								color = headColor,
-//								modifier = Modifier.size(24.dp)
-//							)
-//						} else {
-//							Text(
-//								text = "Log in",
-//								style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight(500)),
-//								color = headColor
-//							)
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		// Tangani status login
-//		when (loginState) {
-//			is LoginState.Success -> {
-//				LaunchedEffect(Unit) {
-//					onLoginSuccess()
-//				}
-//			}
-//			is LoginState.Error -> {
-//				val errorMessage = when ((loginState as LoginState.Error).message) {
-//					"HTTP 400" -> "Username atau password salah."
-//					"No Internet" -> "Tidak ada koneksi internet. Harap periksa jaringan Anda."
-//					"Unknown Error" -> "Terjadi kesalahan yang tidak diketahui."
-//					else -> "Kesalahan: ${(loginState as LoginState.Error).message}"
-//				}
-//				LaunchedEffect(scaffoldState.snackbarHostState) {
-//					scaffoldState.snackbarHostState.showSnackbar(errorMessage)
-//				}
-//			}
-//			else -> {}
-//		}
-//	}
-//}
-
-
 
 @Composable
 fun LoginScreen(
 	viewModel: LoginViewModel = hiltViewModel(),
 	onLoginSuccess: () -> Unit,
 ) {
-	val isImeVisible by rememberImeState()
 	val loginState by viewModel.loginState.collectAsState()
 
 	var username by remember { mutableStateOf("") }
 	var password by remember { mutableStateOf("") }
+	var passwordVisible by remember { mutableStateOf(false) }
 
-	val scaffoldState = rememberScaffoldState()
-
-
+	var showAlert by remember { mutableStateOf(false) }
+	var alertMessage by remember { mutableStateOf("") }
 
 	val headColor = MaterialTheme.colorScheme.onSurface
-	val textColor = MaterialTheme.colorScheme.onBackground
-	val bgColor = MaterialTheme.colorScheme.background
-	val secBgColor = MaterialTheme.colorScheme.tertiaryContainer
-	val primary = MaterialTheme.colorScheme.primary
-	val secon = MaterialTheme.colorScheme.secondary
-
-	val gradientColor = listOf(Color(0xFF484BF1), Color(0xFF673AB7))
+	val gradientColor = listOf(Color(0xFF01433d), Color(0xFF0BD953))
 	val cornerRadius = 16.dp
 
 	Box(
@@ -251,11 +104,12 @@ fun LoginScreen(
 			.background(color = Color.Transparent)
 	) {
 		Image(
-			painter = painterResource(id = R.drawable.user_sign_in),
+			painter = painterResource(id = R.drawable.login),
 			contentDescription = null,
 			contentScale = ContentScale.Fit,
 			modifier = Modifier
 				.height(180.dp)
+				.padding(top = 20.dp)
 				.fillMaxWidth()
 				.align(Alignment.TopCenter)
 		)
@@ -285,9 +139,7 @@ fun LoginScreen(
 			OutlinedTextField(
 				value = username,
 				onValueChange = { username = it },
-				shape = RoundedCornerShape(topEnd = 12.dp, bottomStart = 12.dp),
 				label = { Text("Username") },
-				keyboardOptions = KeyboardOptions.Default,
 				modifier = Modifier.fillMaxWidth(0.8f)
 			)
 			Spacer(modifier = Modifier.height(16.dp))
@@ -296,10 +148,16 @@ fun LoginScreen(
 			OutlinedTextField(
 				value = password,
 				onValueChange = { password = it },
-				shape = RoundedCornerShape(topEnd = 12.dp, bottomStart = 12.dp),
 				label = { Text("Password") },
-				visualTransformation = PasswordVisualTransformation(),
-				keyboardOptions = KeyboardOptions.Default,
+				visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+				trailingIcon = {
+					IconButton(onClick = { passwordVisible = !passwordVisible }) {
+						Icon(
+							imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+							contentDescription = if (passwordVisible) "Hide Password" else "Show Password"
+						)
+					}
+				},
 				modifier = Modifier.fillMaxWidth(0.8f)
 			)
 			Spacer(modifier = Modifier.height(24.dp))
@@ -310,33 +168,54 @@ fun LoginScreen(
 				cornerRadius = cornerRadius,
 				nameButton = if (loginState is LoginState.Loading) "Logging in..." else "Login",
 				roundedCornerShape = RoundedCornerShape(topStart = 30.dp, bottomEnd = 30.dp),
-				onClick = { viewModel.login(username, password) }
+				onClick = {
+					if (username.isBlank() || password.isBlank()) {
+						alertMessage = "Username dan password tidak boleh kosong."
+						showAlert = true
+					} else {
+						viewModel.login(username, password)
+					}
+				}
 			)
-
-			Spacer(modifier = Modifier.height(16.dp))
-
 		}
 	}
 
 	// Tangani status login
 	when (loginState) {
 		is LoginState.Success -> {
-			LaunchedEffect(Unit) { onLoginSuccess() }
+			LaunchedEffect(Unit) {
+				onLoginSuccess()
+				viewModel.resetLoginState() // Reset state agar tidak memicu ulang
+			}
 		}
 		is LoginState.Error -> {
-			val errorMessage = when ((loginState as LoginState.Error).message) {
+			alertMessage = when ((loginState as LoginState.Error).message) {
 				"HTTP 400" -> "Username atau password salah."
 				"No Internet" -> "Tidak ada koneksi internet. Harap periksa jaringan Anda."
 				"Unknown Error" -> "Terjadi kesalahan yang tidak diketahui."
 				else -> "Kesalahan: ${(loginState as LoginState.Error).message}"
 			}
-			LaunchedEffect(scaffoldState.snackbarHostState) {
-				scaffoldState.snackbarHostState.showSnackbar(errorMessage)
-			}
+			showAlert = true
+			viewModel.resetLoginState() // Reset state setelah menampilkan error
 		}
 		else -> {}
 	}
+
+	// Alert Dialog
+	if (showAlert) {
+		AlertDialog(
+			onDismissRequest = { showAlert = false },
+			confirmButton = {
+				TextButton(onClick = { showAlert = false }) {
+					Text("OK")
+				}
+			},
+			title = { Text("Pemberitahuan") },
+			text = { Text(alertMessage) }
+		)
+	}
 }
+
 
 @Composable
 private fun GradientButton(
@@ -373,40 +252,4 @@ private fun GradientButton(
 			)
 		}
 	}
-}
-
-//email id
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun SimpleOutlinedTextFieldSample() {
-	val keyboardController = LocalSoftwareKeyboardController.current
-	var text by rememberSaveable { mutableStateOf("") }
-
-	OutlinedTextField(
-		value = text,
-		onValueChange = { text = it },
-		shape = RoundedCornerShape(topEnd =12.dp, bottomStart =12.dp),
-		label = {
-			Text("Name or Email Address",
-				color = MaterialTheme.colorScheme.primary,
-				style = MaterialTheme.typography.labelMedium,
-			) },
-		placeholder = { Text(text = "Name or Email Address") },
-		keyboardOptions = KeyboardOptions(
-			imeAction = ImeAction.Next,
-			keyboardType = KeyboardType.Email
-		),
-		colors = TextFieldDefaults.outlinedTextFieldColors(
-			focusedBorderColor = MaterialTheme.colorScheme.primary,
-			unfocusedBorderColor = MaterialTheme.colorScheme.primary),
-		singleLine = true,
-		modifier = Modifier.fillMaxWidth(0.8f),
-		keyboardActions = KeyboardActions(
-			onDone = {
-				keyboardController?.hide()
-				// do something here
-			}
-		)
-
-	)
 }

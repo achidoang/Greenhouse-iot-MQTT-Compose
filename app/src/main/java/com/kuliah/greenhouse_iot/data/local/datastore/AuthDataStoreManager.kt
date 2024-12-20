@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 import org.json.JSONObject
 import javax.inject.Inject
 
-private val Context.dataStore by preferencesDataStore(name = "auth_preferences")
+private val Context.authDataStore by preferencesDataStore(name = "auth_preferences")
 
 class AuthDataStoreManager(private val context: Context) {
 
@@ -23,13 +23,13 @@ class AuthDataStoreManager(private val context: Context) {
 
 	suspend fun saveAuthToken(token: String) {
 		Log.d("AuthDataStore", "Saving token: $token")
-		context.dataStore.edit { preferences ->
+		context.authDataStore.edit { preferences ->
 			preferences[TOKEN_KEY] = token
 		}
 	}
 
 	fun getAuthToken(): Flow<String?> {
-		return context.dataStore.data
+		return context.authDataStore.data
 			.map { preferences ->
 				val token = preferences[TOKEN_KEY]
 				Log.d("AuthDataStore", "Retrieved token: $token")
@@ -38,21 +38,21 @@ class AuthDataStoreManager(private val context: Context) {
 	}
 
 	suspend fun clearAuthToken() {
-		context.dataStore.edit { preferences ->
+		context.authDataStore.edit { preferences ->
 			preferences.remove(TOKEN_KEY)
 		}
 	}
 
 	// Menyimpan role pengguna
 	suspend fun saveUserRole(role: String) {
-		context.dataStore.edit { preferences ->
+		context.authDataStore.edit { preferences ->
 			preferences[ROLE_KEY] = role
 		}
 	}
 
 	// Membaca role pengguna
 	fun getUserRole(): Flow<String?> {
-		return context.dataStore.data.map { preferences ->
+		return context.authDataStore.data.map { preferences ->
 			preferences[ROLE_KEY]
 		}
 	}
@@ -76,14 +76,14 @@ class AuthDataStoreManager(private val context: Context) {
 
 	// Menyimpan user ID
 	suspend fun saveUserId(userId: String) {
-		context.dataStore.edit { preferences ->
+		context.authDataStore.edit { preferences ->
 			preferences[USER_ID_KEY] = userId
 		}
 	}
 
 	// Membaca user ID
 	fun getUserId(): Flow<String?> {
-		return context.dataStore.data.map { preferences ->
+		return context.authDataStore.data.map { preferences ->
 			preferences[USER_ID_KEY]
 		}
 	}

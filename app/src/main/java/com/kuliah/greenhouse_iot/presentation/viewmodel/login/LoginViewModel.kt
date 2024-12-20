@@ -62,7 +62,9 @@ class LoginViewModel @Inject constructor(
 		throw IllegalArgumentException("Invalid token format")
 	}
 
-
+	fun resetLoginState() {
+		_loginState.value = LoginState.Idle
+	}
 
 }
 

@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Person2
@@ -72,7 +73,8 @@ fun HomeScreen(
 	modifier: Modifier = Modifier,
 	navController: NavHostController,
 	monitoringViewModel: MonitoringViewModel = hiltViewModel(),
-	weatherViewModel: WeatherViewModel = hiltViewModel()
+	weatherViewModel: WeatherViewModel = hiltViewModel(),
+	userRole: String
 ) {
 	val weatherState by weatherViewModel.weatherState.collectAsState()
 	val locationState by weatherViewModel.locationState.collectAsState()
@@ -107,8 +109,8 @@ fun HomeScreen(
 						}
 					}) {
 						Icon(
-							imageVector = Icons.Default.Person2,
-							contentDescription = "Settings",
+							imageVector = if (userRole == "user") Icons.Default.Person2 else Icons.Default.ManageAccounts,
+							contentDescription = if (userRole == "user") "Profile" else "Manage Accounts",
 							tint = textColor
 						)
 					}
@@ -117,6 +119,7 @@ fun HomeScreen(
 				backgroundColor = MaterialTheme.colorScheme.background,
 				contentColor = headColor
 			)
+
 		},
 		floatingActionButton = {
 			FloatingActionButton(

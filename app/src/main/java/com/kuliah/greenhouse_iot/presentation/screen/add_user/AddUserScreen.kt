@@ -8,20 +8,33 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +42,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -54,9 +70,17 @@ fun AddUserScreen(
 	val isLoading by viewModel.isLoading.collectAsState()
 	val errorMessage by viewModel.errorMessage.collectAsState()
 
+	var showPassword by remember { mutableStateOf(false) }
+	var isFormValid by remember { mutableStateOf(false) }
+
+	LaunchedEffect(username, password, email, fullname) {
+		isFormValid = username.isNotBlank() && password.isNotBlank() &&
+				email.isNotBlank() && fullname.isNotBlank()
+	}
+
 	Scaffold(
 		topBar = {
-			androidx.compose.material.TopAppBar(
+			TopAppBar(
 				title = { Text("Add User") },
 				navigationIcon = {
 					IconButton(onClick = { navController.popBackStack() }) {
@@ -69,12 +93,13 @@ fun AddUserScreen(
 			)
 		}
 	) { padding ->
-		Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+		Box(modifier = Modifier
+			.padding(padding)
+			.fillMaxSize()
+		) {
 			if (isLoading) {
 				Box(
-					modifier = Modifier
-						.fillMaxSize()
-						.padding(padding),
+					modifier = Modifier.fillMaxSize(),
 					contentAlignment = Alignment.Center
 				) {
 					LottieLoading()
@@ -82,21 +107,65 @@ fun AddUserScreen(
 			} else {
 				Column(
 					modifier = Modifier
-						.fillMaxWidth()
+						.fillMaxSize()
+						.verticalScroll(rememberScrollState())
 						.padding(16.dp),
-					verticalArrangement = Arrangement.spacedBy(12.dp)
+					verticalArrangement = Arrangement.spacedBy(16.dp)
 				) {
-					TextField(value = username, onValueChange = { username = it }, label = { Text("Username") })
-					TextField(value = password, onValueChange = { password = it }, label = { Text("Password") })
-					TextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
-					TextField(value = fullname, onValueChange = { fullname = it }, label = { Text("Fullname") })
-					DropdownMenuComponent(
+					OutlinedTextField(
+						value = username,
+						onValueChange = { username = it },
+						label = { Text("Username") },
+						singleLine = true,
+						modifier = Modifier.fillMaxWidth(),
+						leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
+					)
+
+					OutlinedTextField(
+						value = password,
+						onValueChange = { password = it },
+						label = { Text("Password") },
+						singleLine = true,
+						visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+						modifier = Modifier.fillMaxWidth(),
+						leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+						trailingIcon = {
+							IconButton(onClick = { showPassword = !showPassword }) {
+								Icon(
+									if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+									contentDescription = if (showPassword) "Hide password" else "Show password"
+								)
+							}
+						}
+					)
+
+					OutlinedTextField(
+						value = email,
+						onValueChange = { email = it },
+						label = { Text("Email") },
+						singleLine = true,
+						modifier = Modifier.fillMaxWidth(),
+						leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+						keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+					)
+
+					OutlinedTextField(
+						value = fullname,
+						onValueChange = { fullname = it },
+						label = { Text("Full Name") },
+						singleLine = true,
+						modifier = Modifier.fillMaxWidth(),
+						leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
+					)
+
+					EnhancedDropdownMenu(
 						selectedValue = gender,
 						label = "Gender",
 						options = listOf("Male", "Female"),
 						onOptionSelected = { gender = it }
 					)
-					DropdownMenuComponent(
+
+					EnhancedDropdownMenu(
 						selectedValue = role,
 						label = "Role",
 						options = listOf("user", "admin"),
@@ -117,13 +186,28 @@ fun AddUserScreen(
 							viewModel.addUser(newUser)
 							onAddSuccess()
 						},
-						modifier = Modifier.fillMaxWidth()
+						modifier = Modifier.fillMaxWidth(),
+						enabled = isFormValid
 					) {
 						Text("Add User")
 					}
 
+					if (!isFormValid) {
+						Text(
+							text = "Please fill in all fields to submit",
+							color = MaterialTheme.colorScheme.error,
+							style = MaterialTheme.typography.bodySmall,
+							modifier = Modifier.padding(top = 8.dp)
+						)
+					}
+
 					errorMessage?.let {
-						Text(text = it, color = MaterialTheme.colorScheme.error)
+						Text(
+							text = it,
+							color = MaterialTheme.colorScheme.error,
+							style = MaterialTheme.typography.bodyMedium,
+							modifier = Modifier.padding(top = 8.dp)
+						)
 					}
 				}
 			}
@@ -131,8 +215,9 @@ fun AddUserScreen(
 	}
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownMenuComponent(
+fun EnhancedDropdownMenu(
 	selectedValue: String,
 	label: String,
 	options: List<String>,
@@ -140,26 +225,33 @@ fun DropdownMenuComponent(
 ) {
 	var expanded by remember { mutableStateOf(false) }
 
-	Column {
-		Text(text = label, style = MaterialTheme.typography.labelMedium)
-		Box(
-			modifier = Modifier
-				.fillMaxWidth()
-				.clickable { expanded = true }
-				.background(MaterialTheme.colorScheme.surface)
-				.padding(12.dp)
+	ExposedDropdownMenuBox(
+		expanded = expanded,
+		onExpandedChange = { expanded = !expanded }
+	) {
+		OutlinedTextField(
+			value = selectedValue,
+			onValueChange = {},
+			readOnly = true,
+			label = { Text(label) },
+			trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+			modifier = Modifier.fillMaxWidth().menuAnchor()
+		)
+
+		ExposedDropdownMenu(
+			expanded = expanded,
+			onDismissRequest = { expanded = false }
 		) {
-			Text(text = selectedValue, style = MaterialTheme.typography.bodyMedium)
-		}
-		DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
 			options.forEach { option ->
-				DropdownMenuItem(onClick = {
-					expanded = false
-					onOptionSelected(option)
-				}) {
-					Text(option)
-				}
+				DropdownMenuItem(
+					onClick = {
+						onOptionSelected(option)
+						expanded = false
+					},
+					content = { Text(option) }
+				)
 			}
 		}
 	}
 }
+

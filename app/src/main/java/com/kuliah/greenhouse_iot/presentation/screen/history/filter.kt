@@ -1,19 +1,33 @@
 package com.kuliah.greenhouse_iot.presentation.screen.history
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,7 +50,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -61,86 +77,223 @@ fun FilterSection(
 	var showStartDatePicker by remember { mutableStateOf(false) }
 	var showEndDatePicker by remember { mutableStateOf(false) }
 	var showAlert by remember { mutableStateOf(false) }
+	var alertMessage by remember { mutableStateOf("") }
 
 	if (showAlert) {
-		AlertDialog(
-			onDismissRequest = { showAlert = false },
-			confirmButton = {
-				TextButton(onClick = { showAlert = false }) {
-					Text("OK")
-				}
-			},
-			title = { Text("Invalid Date Range") },
-			text = { Text("End date cannot be earlier than start date.") }
+		StyledAlertDialog(
+			message = alertMessage,
+			onDismiss = { showAlert = false }
 		)
 	}
 
-	Row(
-		modifier = Modifier.fillMaxWidth(),
-		horizontalArrangement = Arrangement.SpaceBetween,
-		verticalAlignment = Alignment.CenterVertically
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.clip(RoundedCornerShape(16.dp))
+			.background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f))
+			.padding(4.dp),
+		verticalArrangement = Arrangement.spacedBy(4.dp)
 	) {
-		FilterButton(
-			label = startDate?.toString() ?: "Start Date",
-			onClick = { showStartDatePicker = true },
-			headColor = headColor,
-			bgColor = bgColor
-		)
-		FilterButton(
-			label = endDate?.toString() ?: "End Date",
-			onClick = { showEndDatePicker = true },
-			headColor = headColor,
-			bgColor = bgColor
-		)
-		Button(
-			onClick = { onFilterReset() },
-			colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background)
+		Row(
+			modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+			horizontalArrangement = Arrangement.SpaceBetween
 		) {
-			Text("Reset Filter", color = MaterialTheme.colorScheme.onSurface)
+			// Title
+			Text(
+				"Filter Data",
+				style = MaterialTheme.typography.titleMedium,
+				color = MaterialTheme.colorScheme.onSurfaceVariant
+			)
+			// Reset Button
+			if (startDate != null || endDate != null) {
+				AnimatedVisibility(
+					visible = true,
+					enter = fadeIn() + expandVertically(),
+					exit = fadeOut() + shrinkVertically()
+				) {
+					TextButton(
+						onClick = onFilterReset,
+//						modifier = Modifier.align(Alignment.End)
+					) {
+						Icon(
+							Icons.Default.FilterAlt,
+							contentDescription = null,
+							modifier = Modifier.size(14.dp)
+						)
+						Spacer(modifier = Modifier.width(4.dp))
+						Text("Reset Filters")
+					}
+				}
+			}
 		}
+
+		// Date Range Section
+		Row(
+			modifier = Modifier.fillMaxWidth(),
+			horizontalArrangement = Arrangement.spacedBy(8.dp)
+		) {
+			EnhancedFilterButton(
+				label = startDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+					?: "Start Date",
+				onClick = { showStartDatePicker = true },
+				icon = Icons.Default.CalendarToday,
+				modifier = Modifier.weight(1f),
+				isSelected = startDate != null
+			)
+			EnhancedFilterButton(
+				label = endDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: "End Date",
+				onClick = { showEndDatePicker = true },
+				icon = Icons.Default.CalendarMonth,
+				modifier = Modifier.weight(1f),
+				isSelected = endDate != null
+			)
+		}
+
+
 	}
 
 	if (showStartDatePicker) {
-		DatePickerDialog(
+		EnhancedDatePickerDialog(
 			onDismissRequest = { showStartDatePicker = false },
 			onDateSelected = { selectedDate ->
-				if (endDate != null && selectedDate > endDate) {
-					showAlert = true
-				} else {
-					onStartDateChange(selectedDate)
+				when {
+					selectedDate > today -> {
+						alertMessage = "Start date cannot be in the future"
+						showAlert = true
+					}
+
+					endDate != null && selectedDate > endDate -> {
+						alertMessage = "Start date cannot be after end date"
+						showAlert = true
+					}
+
+					else -> onStartDateChange(selectedDate)
 				}
 				showStartDatePicker = false
 			},
-			title = "Select Start Date",
-			endDate = endDate
+			title = "Select Start Date"
 		)
 	}
 
 	if (showEndDatePicker) {
-		DatePickerDialog(
+		EnhancedDatePickerDialog(
 			onDismissRequest = { showEndDatePicker = false },
 			onDateSelected = { selectedDate ->
-				if (startDate != null && selectedDate < startDate) {
-					showAlert = true
-				} else {
-					onEndDateChange(selectedDate)
+				when {
+					selectedDate > today -> {
+						alertMessage = "End date cannot be in the future"
+						showAlert = true
+					}
+
+					startDate != null && selectedDate < startDate -> {
+						alertMessage = "End date cannot be before start date"
+						showAlert = true
+					}
+
+					else -> onEndDateChange(selectedDate)
 				}
 				showEndDatePicker = false
 			},
-			title = "Select End Date",
-			startDate = startDate
+			title = "Select End Date"
 		)
 	}
 }
 
 @Composable
-fun FilterButton(label: String, onClick: () -> Unit, headColor: Color, bgColor: Color) {
-	OutlinedButton(
+fun StyledAlertDialog(
+	message: String,
+	onDismiss: () -> Unit
+) {
+	AlertDialog(
+		onDismissRequest = onDismiss,
+		confirmButton = {
+			TextButton(
+				onClick = onDismiss,
+				modifier = Modifier
+					.padding(horizontal = 16.dp, vertical = 8.dp)
+			) {
+				Text(
+					text = "OK",
+					style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
+				)
+			}
+		},
+		title = {
+			Row(
+				verticalAlignment = Alignment.CenterVertically,
+				horizontalArrangement = Arrangement.spacedBy(8.dp)
+			) {
+				Icon(
+					imageVector = Icons.Default.Error,
+					contentDescription = "Alert Icon",
+					tint = MaterialTheme.colorScheme.error
+				)
+				Text(
+					text = "Invalid Date Selection",
+					style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface)
+				)
+			}
+		},
+		text = {
+			Text(
+				text = message,
+				style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+				modifier = Modifier.padding(vertical = 8.dp)
+			)
+		},
+		containerColor = MaterialTheme.colorScheme.surface,
+		tonalElevation = 6.dp,
+		shape = MaterialTheme.shapes.medium
+	)
+}
+
+
+@Composable
+fun EnhancedFilterButton(
+	label: String,
+	onClick: () -> Unit,
+	icon: ImageVector,
+	modifier: Modifier = Modifier,
+	isSelected: Boolean = false
+) {
+	Surface(
 		onClick = onClick,
-		colors = ButtonDefaults.outlinedButtonColors(contentColor = headColor),
-		border = BorderStroke(1.dp, headColor)
+		modifier = modifier.height(48.dp),
+		shape = RoundedCornerShape(12.dp),
+		color = if (isSelected)
+			MaterialTheme.colorScheme.secondaryContainer
+		else
+			MaterialTheme.colorScheme.surface,
+		tonalElevation = if (isSelected) 0.dp else 2.dp
 	) {
-		Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+		Row(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(horizontal = 12.dp),
+			horizontalArrangement = Arrangement.Start,
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			Icon(
+				imageVector = icon,
+				contentDescription = null,
+				modifier = Modifier.size(20.dp),
+				tint = if (isSelected)
+					MaterialTheme.colorScheme.onSecondaryContainer
+				else
+					MaterialTheme.colorScheme.onSurfaceVariant
+			)
+			Spacer(modifier = Modifier.width(8.dp))
+			Text(
+				text = label,
+				style = MaterialTheme.typography.bodyMedium,
+				color = if (isSelected)
+					MaterialTheme.colorScheme.onSecondaryContainer
+				else
+					MaterialTheme.colorScheme.onSurfaceVariant,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
+		}
 	}
 }
 
@@ -156,7 +309,7 @@ fun SortingSection(
 	val sortOptions = listOf("timestamp", "watertemp", "waterppm", "waterph", "airtemp", "airhum")
 
 	Row(
-		modifier = Modifier.fillMaxWidth(),
+		modifier = Modifier.fillMaxWidth().padding(4.dp),
 		horizontalArrangement = Arrangement.SpaceBetween,
 		verticalAlignment = Alignment.CenterVertically
 	) {
@@ -203,6 +356,7 @@ fun PaginationSection(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(vertical = 8.dp),
+		//			.padding(bottom = 20.dp),
 		horizontalArrangement = Arrangement.SpaceBetween,
 		verticalAlignment = Alignment.CenterVertically
 	) {
@@ -226,69 +380,59 @@ fun PaginationSection(
 	}
 }
 
-@SuppressLint("NewApi")
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerDialog(
+fun EnhancedDatePickerDialog(
 	onDismissRequest: () -> Unit,
 	onDateSelected: (LocalDate) -> Unit,
-	title: String,
-	startDate: LocalDate? = null,
-	endDate: LocalDate? = null,
-	isStartDatePicker: Boolean = true
+	title: String
 ) {
 	val datePickerState = rememberDatePickerState()
 
 	Dialog(onDismissRequest = onDismissRequest) {
 		Surface(
-			shape = MaterialTheme.shapes.medium,
+			shape = MaterialTheme.shapes.extraLarge,
 			tonalElevation = 6.dp,
-			modifier = Modifier.padding(16.dp)
+			modifier = Modifier.padding(4.dp)
 		) {
-			Column(modifier = Modifier.padding(16.dp)) {
+			Column(
+				modifier = Modifier.padding(16.dp),
+				verticalArrangement = Arrangement.spacedBy(16.dp)
+			) {
 				Text(
 					text = title,
 					style = MaterialTheme.typography.titleLarge,
-					modifier = Modifier.padding(bottom = 16.dp)
+					color = MaterialTheme.colorScheme.onSurface
 				)
+
 				DatePicker(
 					state = datePickerState,
-					showModeToggle = false
+					showModeToggle = false,
+					modifier = Modifier.weight(1f, false)
 				)
+
 				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(top = 16.dp),
-					horizontalArrangement = Arrangement.End
+					modifier = Modifier.fillMaxWidth(),
+					horizontalArrangement = Arrangement.End,
+					verticalAlignment = Alignment.CenterVertically
 				) {
 					TextButton(onClick = onDismissRequest) {
 						Text("Cancel")
 					}
-					TextButton(
+					Spacer(modifier = Modifier.width(8.dp))
+					Button(
 						onClick = {
 							datePickerState.selectedDateMillis?.let { selectedDateMillis ->
 								val selectedDate = Instant.ofEpochMilli(selectedDateMillis)
 									.atZone(ZoneId.systemDefault())
 									.toLocalDate()
-
-								// Validasi tanggal
-								val today = LocalDate.now()
-								if (selectedDate <= today) {
-									if (isStartDatePicker) {
-										if (endDate == null || selectedDate <= endDate) {
-											onDateSelected(selectedDate)
-										}
-									} else {
-										if (startDate == null || selectedDate >= startDate) {
-											onDateSelected(selectedDate)
-										}
-									}
-								}
+								onDateSelected(selectedDate)
 							}
 							onDismissRequest()
 						}
 					) {
-						Text("OK")
+						Text("Select")
 					}
 				}
 			}

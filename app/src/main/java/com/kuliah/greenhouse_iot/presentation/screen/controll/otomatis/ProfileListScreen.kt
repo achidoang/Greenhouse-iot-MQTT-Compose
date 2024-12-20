@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Water
@@ -17,6 +18,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,16 +47,20 @@ import androidx.navigation.NavController
 import com.kuliah.greenhouse_iot.data.model.controll.auto.Profile
 import com.kuliah.greenhouse_iot.presentation.common.LottieLoading
 import com.kuliah.greenhouse_iot.presentation.navigation.Route
+import com.kuliah.greenhouse_iot.presentation.viewmodel.mode.ModeViewModel
 import com.kuliah.greenhouse_iot.presentation.viewmodel.profile.ProfileUiState
 import com.kuliah.greenhouse_iot.presentation.viewmodel.profile.ProfileViewModel
+import com.kuliah.greenhouse_iot.presentation.viewmodel.profile.SortType
 
 @Composable
 fun ProfileListScreen(
 	viewModel: ProfileViewModel = hiltViewModel(),
+	modeViewModel: ModeViewModel = hiltViewModel(),
 	navController: NavController
 ) {
 	val uiState by viewModel.uiState.collectAsState()
 	val profiles by viewModel.profiles.collectAsState()
+	val isAutomaticMode by modeViewModel.isAutomaticMode.collectAsState(initial = true)
 
 	val backgroundColor = MaterialTheme.colorScheme.background
 	val textColor = MaterialTheme.colorScheme.onSurface
@@ -60,6 +68,8 @@ fun ProfileListScreen(
 	// State untuk dialog konfirmasi
 	var showDialog by remember { mutableStateOf(false) }
 	var profileToDelete by remember { mutableStateOf<Int?>(null) }
+
+
 
 	LaunchedEffect(Unit) {
 		viewModel.loadProfiles()
@@ -69,7 +79,7 @@ fun ProfileListScreen(
 		modifier = Modifier
 			.fillMaxSize()
 			.background(backgroundColor)
-//			.padding(16.dp)
+		//			.padding(16.dp)
 	) {
 		Scaffold(
 			floatingActionButton = {
@@ -97,27 +107,51 @@ fun ProfileListScreen(
 						LottieLoading()
 					}
 				}
+
 				is ProfileUiState.Success -> {
-					LazyColumn(
+					Column(
 						modifier = Modifier
-							.fillMaxSize()
+							.fillMaxWidth()
 							.padding(padding)
-							.padding(bottom = 90.dp, start = 16.dp, end = 16.dp, top = 16.dp),
-						verticalArrangement = Arrangement.spacedBy(15.dp)
 					) {
-						items(profiles) { profile ->
-							ProfileCard(
-								profile = profile,
-								onActivate = { viewModel.activateProfile(profile.id) },
-								onDelete = {
-									profileToDelete = profile.id
-									showDialog = true
-								},
-								onEdit = { navController.navigate("${Route.EditProfile.destination}/${profile.id}") }
-							)
+						// Row untuk tombol sorting
+						Row(
+							modifier = Modifier
+								.fillMaxWidth()
+								.padding(horizontal = 16.dp),
+							horizontalArrangement = Arrangement.SpaceBetween
+						) {
+							TextButton(onClick = { viewModel.setSortType(SortType.ALPHABETICAL) }) {
+								Text("Alfabet")
+							}
+							TextButton(onClick = { viewModel.setSortType(SortType.TIMESTAMP) }) {
+								Text("Terbaru")
+							}
+						}
+
+						LazyColumn(
+							modifier = Modifier
+								.fillMaxWidth()
+								.padding(padding)
+								.padding(bottom = 90.dp, start = 16.dp, end = 16.dp, top = 4.dp),
+							verticalArrangement = Arrangement.spacedBy(15.dp)
+						) {
+							items(profiles) { profile ->
+								ProfileCard(
+									profile = profile,
+									isAutomaticMode = isAutomaticMode,
+									onActivate = { viewModel.activateProfile(profile.id) },
+									onDelete = {
+										profileToDelete = profile.id
+										showDialog = true
+									},
+									onEdit = { navController.navigate("${Route.EditProfile.destination}/${profile.id}") }
+								)
+							}
 						}
 					}
 				}
+
 				is ProfileUiState.Error -> {
 					Box(
 						modifier = Modifier
@@ -165,6 +199,7 @@ fun ProfileListScreen(
 fun ProfileCard(
 	profile: Profile,
 	onActivate: () -> Unit,
+	isAutomaticMode: Boolean,
 	onDelete: () -> Unit,
 	onEdit: () -> Unit
 ) {
@@ -249,8 +284,9 @@ fun ProfileCard(
 					onClick = onActivate,
 					modifier = Modifier.fillMaxWidth(),
 					colors = ButtonDefaults.buttonColors(
-						containerColor = MaterialTheme.colorScheme.onBackground
-					)
+						containerColor = if (isAutomaticMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+					),
+					enabled = isAutomaticMode
 				) {
 					Text(
 						text = "Activate",
@@ -265,8 +301,9 @@ fun ProfileCard(
 					onClick = onActivate,
 					modifier = Modifier.fillMaxWidth(),
 					colors = ButtonDefaults.buttonColors(
-						containerColor = MaterialTheme.colorScheme.primary
-					)
+						containerColor = if (isAutomaticMode) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary
+					),
+					enabled = isAutomaticMode
 				) {
 					Text(
 						text = "Active Profile",
@@ -277,6 +314,19 @@ fun ProfileCard(
 					)
 				}
 			}
+
+			if (!isAutomaticMode) {
+				Text(
+					text = "Profiles can only be activated in Automatic Mode",
+					color = MaterialTheme.colorScheme.error,
+					style = MaterialTheme.typography.bodySmall,
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(16.dp),
+					textAlign = TextAlign.Center
+				)
+			}
+
 		}
 	}
 }
@@ -314,3 +364,4 @@ fun ProfileParameter(icon: ImageVector, label: String, value: String, color: Col
 		)
 	}
 }
+

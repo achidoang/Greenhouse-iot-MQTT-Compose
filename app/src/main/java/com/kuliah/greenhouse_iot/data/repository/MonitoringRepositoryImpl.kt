@@ -1,5 +1,6 @@
 package com.kuliah.greenhouse_iot.data.repository
 
+import android.util.Log
 import com.kuliah.greenhouse_iot.data.model.history.AverageHistory
 import com.kuliah.greenhouse_iot.data.model.history.MonitoringHistory
 import com.kuliah.greenhouse_iot.data.model.history.PaginatedResponse
@@ -17,15 +18,27 @@ class MonitoringRepositoryImpl @Inject constructor(
 		return api.getHistoryPaginated(page, limit, startDate, endDate, sortBy, order)
 	}
 
+//	override suspend fun getDailyAverages(): List<AverageHistory> {
+//		return api.getDailyAverages().map { it.copy(timeType = TimeType.DAILY) }
+//	}
+
 	override suspend fun getDailyAverages(): List<AverageHistory> {
-		return api.getDailyAverages().map { it.copy(timeType = TimeType.DAILY) }
+		val data = api.getDailyAverages()
+		Log.d("API-DailyAverages", "Data received: $data")
+		return data.map { it.copy(timeType = TimeType.DAILY) }
 	}
 
+//	override suspend fun getWeeklyAverages(): List<AverageHistory> {
+//		return api.getWeeklyAverages().map { it.copy(timeType = TimeType.WEEKLY) }
+//	}
 	override suspend fun getWeeklyAverages(): List<AverageHistory> {
-		return api.getWeeklyAverages().map { it.copy(timeType = TimeType.WEEKLY) }
+		val data = api.getWeeklyAverages()
+		Log.d("API-WeeklyAverages", "Data received: $data")
+		return data.map { it.copy(timeType = TimeType.WEEKLY) }
 	}
 
 	override suspend fun getMonthlyAverages(): List<AverageHistory> {
 		return api.getMonthlyAverages().map { it.copy(timeType = TimeType.MONTHLY) }
 	}
+
 }

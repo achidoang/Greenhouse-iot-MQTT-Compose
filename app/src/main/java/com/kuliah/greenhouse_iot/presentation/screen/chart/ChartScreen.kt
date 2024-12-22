@@ -2,6 +2,7 @@ package com.kuliah.greenhouse_iot.presentation.screen.chart
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -116,6 +117,7 @@ fun ChartScreen(viewModel: ChartViewModel = hiltViewModel()) {
 
 @Composable
 fun CombinedDailyChart(viewModel: ChartViewModel) {
+
 	ChartContent(
 		data = viewModel.dailyAverages.collectAsState().value,
 		metrics = listOf(
@@ -213,6 +215,9 @@ fun ChartContent(
 	labels: List<String>
 ) {
 	val headColor = MaterialTheme.colorScheme.onSurface
+	Log.d("ChartContent", "Data: $data")
+	Log.d("ChartContent", "Data size: ${data?.size ?: 0}")
+	data?.forEach { Log.d("ChartContent", "Item: $it") }
 
 	Column(
 		modifier = Modifier

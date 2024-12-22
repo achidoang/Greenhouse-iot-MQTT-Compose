@@ -49,36 +49,53 @@ class ChartViewModel @Inject constructor(
 
 
 	init {
-		fetchAllData()
+//		fetchAllData()
+		fetchDailyAverages()
+		fetchWeeklyAverages()
 	}
 
-
-	private fun fetchAllData() {
+//
+//	private fun fetchAllData() {
+//		viewModelScope.launch {
+//			_isLoading.value = true
+//			try {
+//				val dailyData = getDailyAveragesUseCase()
+//				val weeklyData = getWeeklyAveragesUseCase()
+//
+//				// Proses data harian
+//				val (processedDailyData, dailyLabels) = processDailyData(dailyData)
+//				_dailyAverages.value = processedDailyData
+//				_dailyXAxisLabels.value = dailyLabels
+//
+//				// Proses data mingguan
+//				val (processedWeeklyData, weeklyLabels) = processWeeklyData(weeklyData)
+//				_weeklyAverages.value = processedWeeklyData
+//				_weeklyXAxisLabels.value = weeklyLabels
+//			} catch (e: Exception) {
+//				_error.value = "Failed to fetch data: ${e.message}"
+//			} finally {
+//				_isLoading.value = false
+//			}
+//		}
+//	}
+	private fun fetchDailyAverages() {
 		viewModelScope.launch {
-			_isLoading.value = true
-			try {
-				val dailyData = getDailyAveragesUseCase()
-				val weeklyData = getWeeklyAveragesUseCase()
-
-				// Proses data harian
-				val (processedDailyData, dailyLabels) = processDailyData(dailyData)
-				_dailyAverages.value = processedDailyData
-				_dailyXAxisLabels.value = dailyLabels
-
-				// Proses data mingguan
-				val (processedWeeklyData, weeklyLabels) = processWeeklyData(weeklyData)
-				_weeklyAverages.value = processedWeeklyData
-				_weeklyXAxisLabels.value = weeklyLabels
-			} catch (e: Exception) {
-				_error.value = "Failed to fetch data: ${e.message}"
-			} finally {
-				_isLoading.value = false
-			}
+			val result = getDailyAveragesUseCase()
+			_dailyAverages.value = result
+			_dailyXAxisLabels.value = result?.map { it.day.toString() } ?: emptyList()
 		}
 	}
 
+	private fun fetchWeeklyAverages() {
+		viewModelScope.launch {
+			val result = getWeeklyAveragesUseCase()
+			_weeklyAverages.value = result
+			_weeklyXAxisLabels.value = result?.map { "Week ${it.week}" } ?: emptyList()
+		}
+	}
 
 	fun processDailyData(data: List<AverageHistory>): Pair<List<AverageHistory>, List<String>> {
+		Log.d("ProcessDailyData", "Raw data: $data")
 		val calendar = Calendar.getInstance()
 		val today = calendar.time
 
@@ -106,6 +123,7 @@ class ChartViewModel @Inject constructor(
 	}
 
 	fun processWeeklyData(data: List<AverageHistory>): Pair<List<AverageHistory>, List<String>> {
+		Log.d("ProcessWeeklyData", "Raw data: $data")
 		val calendar = Calendar.getInstance()
 		val xAxisLabels = mutableListOf<String>()
 		val filteredData = mutableListOf<AverageHistory>()
@@ -123,16 +141,10 @@ class ChartViewModel @Inject constructor(
 			// Filter data berdasarkan minggu
 			val weekData = data.filter { it.week == week }
 			filteredData.addAll(weekData)
-
-			Log.d("WeeklyData", "Processed Data for Week $week: $weekData")
-			Log.d("WeeklyLabels", "XAxis Labels: $xAxisLabels")
 		}
 
 		return Pair(filteredData, xAxisLabels)
 	}
-
-
-
 }
 
 

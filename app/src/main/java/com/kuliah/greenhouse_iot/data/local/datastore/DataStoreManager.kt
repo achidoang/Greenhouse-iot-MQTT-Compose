@@ -88,6 +88,7 @@ class DataStoreManager @Inject constructor(private val context: Context) {
 	fun getMonitoringData(): Flow<MonitoringData?> {
 		return context.dataStore.data.map { preferences ->
 			val timestamp = preferences[TIMESTAMP_KEY]
+			Log.d("DataStoreManager", "Timestamp: $timestamp, WaterTemp: ${preferences[WATERTEMP_KEY]}")
 			if (timestamp != null) {
 				MonitoringData(
 					watertemp = preferences[WATERTEMP_KEY] ?: 0f,
@@ -237,4 +238,6 @@ class DataStoreManager @Inject constructor(private val context: Context) {
 		}
 		emit(dataList)
 	}
+
+
 }

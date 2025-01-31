@@ -49,69 +49,51 @@ class ChartViewModel @Inject constructor(
 
 
 	init {
-//		fetchAllData()
-		fetchDailyAverages()
-		fetchWeeklyAverages()
+		fetchAllData()
 	}
 
-//
-//	private fun fetchAllData() {
-//		viewModelScope.launch {
-//			_isLoading.value = true
-//			try {
-//				val dailyData = getDailyAveragesUseCase()
-//				val weeklyData = getWeeklyAveragesUseCase()
-//
-//				// Proses data harian
-//				val (processedDailyData, dailyLabels) = processDailyData(dailyData)
-//				_dailyAverages.value = processedDailyData
-//				_dailyXAxisLabels.value = dailyLabels
-//
-//				// Proses data mingguan
-//				val (processedWeeklyData, weeklyLabels) = processWeeklyData(weeklyData)
-//				_weeklyAverages.value = processedWeeklyData
-//				_weeklyXAxisLabels.value = weeklyLabels
-//			} catch (e: Exception) {
-//				_error.value = "Failed to fetch data: ${e.message}"
-//			} finally {
-//				_isLoading.value = false
-//			}
-//		}
-//	}
-	private fun fetchDailyAverages() {
+	private fun fetchAllData() {
 		viewModelScope.launch {
-			val result = getDailyAveragesUseCase()
-			_dailyAverages.value = result
-			_dailyXAxisLabels.value = result?.map { it.day.toString() } ?: emptyList()
-		}
-	}
+			_isLoading.value = true
+			try {
+				val dailyData = getDailyAveragesUseCase()
+				val weeklyData = getWeeklyAveragesUseCase()
 
-	private fun fetchWeeklyAverages() {
-		viewModelScope.launch {
-			val result = getWeeklyAveragesUseCase()
-			_weeklyAverages.value = result
-			_weeklyXAxisLabels.value = result?.map { "Week ${it.week}" } ?: emptyList()
+				// Proses data harian
+				val (processedDailyData, dailyLabels) = processDailyData(dailyData)
+				_dailyAverages.value = processedDailyData
+				_dailyXAxisLabels.value = dailyLabels
+
+				// Proses data mingguan
+				val (processedWeeklyData, weeklyLabels) = processWeeklyData(weeklyData)
+				_weeklyAverages.value = processedWeeklyData
+				_weeklyXAxisLabels.value = weeklyLabels
+			} catch (e: Exception) {
+				_error.value = "Failed to fetch data: ${e.message}"
+			} finally {
+				_isLoading.value = false
+			}
 		}
 	}
 
 	fun processDailyData(data: List<AverageHistory>): Pair<List<AverageHistory>, List<String>> {
-		Log.d("ProcessDailyData", "Raw data: $data")
 		val calendar = Calendar.getInstance()
 		val today = calendar.time
+		calendar.add(Calendar.DAY_OF_MONTH, -6) // Memulai dari 7 hari terakhir
 
-		// Mulai dari hari Minggu
-		calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
 		val xAxisLabels = mutableListOf<String>()
 		val filteredData = mutableListOf<AverageHistory>()
 
 		for (i in 0..6) {
 			val currentDate = calendar.time
-			val dateLabel = SimpleDateFormat("dd MMM", Locale("id")).format(currentDate)
+			val dateLabel = SimpleDateFormat("dd, MMM", Locale("id")).format(currentDate)
 
 			xAxisLabels.add(dateLabel)
 
-			// Filter data hanya sampai hari ini
-			data.find { it.day == calendar.get(Calendar.DAY_OF_MONTH) && it.month == calendar.get(Calendar.MONTH) + 1 }?.let {
+			// Filter data berdasarkan tanggal
+			data.find {
+				it.day == calendar.get(Calendar.DAY_OF_MONTH) && it.month == calendar.get(Calendar.MONTH) + 1
+			}?.let {
 				filteredData.add(it)
 			}
 
@@ -123,28 +105,48 @@ class ChartViewModel @Inject constructor(
 	}
 
 	fun processWeeklyData(data: List<AverageHistory>): Pair<List<AverageHistory>, List<String>> {
-		Log.d("ProcessWeeklyData", "Raw data: $data")
 		val calendar = Calendar.getInstance()
 		val xAxisLabels = mutableListOf<String>()
 		val filteredData = mutableListOf<AverageHistory>()
 
-		// Menggunakan rentang minggu yang benar sesuai data yang ada
-		for (week in 45..49) {  // Pastikan rentang minggu sesuai dengan data yang Anda miliki
-			// Tentukan tanggal mulai dan akhir minggu
-			val weekLabel = "Week $week (${SimpleDateFormat("MMM", Locale("id")).format(calendar.apply {
-				set(Calendar.YEAR, 2024)
-				set(Calendar.WEEK_OF_YEAR, week)
-			}.time)})"
+		// Ambil minggu saat ini
+		val currentWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+		val currentYear = calendar.get(Calendar.YEAR)
 
-			xAxisLabels.add(weekLabel)
+		// Iterasi untuk mendapatkan 5 minggu terakhir
+		for (weekOffset in 0 until 5) {
+			val week = currentWeek - weekOffset
 
-			// Filter data berdasarkan minggu
-			val weekData = data.filter { it.week == week }
-			filteredData.addAll(weekData)
+			// Sesuaikan jika minggu berada di tahun sebelumnya
+			if (week <= 0) {
+				calendar.set(Calendar.YEAR, currentYear - 1)
+				calendar.set(Calendar.WEEK_OF_YEAR, week + 52) // Asumsi 52 minggu dalam setahun
+			} else {
+				calendar.set(Calendar.YEAR, currentYear)
+				calendar.set(Calendar.WEEK_OF_YEAR, week)
+			}
+
+			// Format label: minggu X, bulan
+			val weekLabel = "week ${calendar.get(Calendar.WEEK_OF_MONTH)}, ${
+				SimpleDateFormat("MMM", Locale("id")).format(calendar.time)
+			}"
+			xAxisLabels.add(0, weekLabel) // Tambahkan di awal untuk memastikan urutan
+
+			// Filter data berdasarkan minggu dan tahun
+			val weekData = data.filter {
+				it.week == calendar.get(Calendar.WEEK_OF_YEAR) &&
+						it.year == calendar.get(Calendar.YEAR)
+			}
+
+			// Tambahkan data hanya jika tersedia
+			if (weekData.isNotEmpty()) {
+				filteredData.addAll(weekData)
+			}
 		}
 
 		return Pair(filteredData, xAxisLabels)
 	}
+
 }
 
 

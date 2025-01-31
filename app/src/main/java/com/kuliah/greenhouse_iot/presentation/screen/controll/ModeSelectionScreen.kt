@@ -36,7 +36,7 @@ import com.kuliah.greenhouse_iot.presentation.viewmodel.mode.ModeViewModel
 fun ModeSelectionScreen(
 	navController: NavController,
 ) {
-	val tabs = listOf("Aktuator", "Profil Setpoint")
+	val tabs = listOf("Profil Setpoint", "Aktuator",)
 	var selectedTabIndex by remember { mutableStateOf(0) }
 
 
@@ -70,8 +70,8 @@ fun ModeSelectionScreen(
 				.padding(0.dp, 0.dp, 0.dp, 4.dp)
 		) {
 			when (selectedTabIndex) {
-				0 -> ActuatorScreen() // Kontrol Manual
-				1 -> ProfileListScreen(navController = navController) // Kontrol Otomatis
+				0 -> ProfileListScreen(navController = navController) // Kontrol Otomatis
+				1 -> ActuatorScreen() // Kontrol Manual
 			}
 		}
 	}

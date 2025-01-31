@@ -43,6 +43,7 @@ fun CreateProfileScreen(
 	var waterppm by remember { mutableStateOf(100.0) }
 	var waterph by remember { mutableStateOf(7.0) }
 	var profileName by remember { mutableStateOf("") }
+	var errorMessage by remember { mutableStateOf("") }
 
 	Scaffold(
 		topBar = {
@@ -70,6 +71,15 @@ fun CreateProfileScreen(
 				style = MaterialTheme.typography.titleLarge,
 				color = MaterialTheme.colorScheme.primary
 			)
+
+			// Error Message
+			if (errorMessage.isNotEmpty()) {
+				Text(
+					text = errorMessage,
+					color = MaterialTheme.colorScheme.error,
+					style = MaterialTheme.typography.bodyMedium
+				)
+			}
 
 			// Profile Name
 			OutlinedTextField(
@@ -126,6 +136,7 @@ fun CreateProfileScreen(
 					onProfileCreated()
 				},
 				modifier = Modifier.fillMaxWidth(),
+				enabled = profileName.isNotBlank(),
 				colors = ButtonDefaults.buttonColors(
 					containerColor = MaterialTheme.colorScheme.primary,
 					contentColor = MaterialTheme.colorScheme.onPrimary

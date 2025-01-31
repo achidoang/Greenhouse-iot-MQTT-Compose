@@ -56,7 +56,7 @@ import java.util.Locale
 @Composable
 fun ChartScreen(viewModel: ChartViewModel = hiltViewModel()) {
 	val pagerState = rememberPagerState()
-	val tabs = listOf("Temp & Hum", "Water PPM", "Water PH")
+	val tabs = listOf("Temp", "Water PPM", "Water PH", "Air Hum")
 	val coroutineScope = rememberCoroutineScope()
 
 	val backgroundColor = MaterialTheme.colorScheme.background
@@ -79,7 +79,8 @@ fun ChartScreen(viewModel: ChartViewModel = hiltViewModel()) {
 							pagerState.scrollToPage(index)
 						}
 					},
-					text = { Text(text = title, color = HeadColor) }
+					text = { Text(text = title, color = HeadColor, style = MaterialTheme.typography.bodySmall) }
+
 				)
 			}
 		}
@@ -109,6 +110,11 @@ fun ChartScreen(viewModel: ChartViewModel = hiltViewModel()) {
 						WaterPhDailyChart(viewModel)
 						WaterPhWeeklyChart(viewModel)
 					}
+
+					3 -> {
+						AirHumDailyChart(viewModel)
+						AirHumWeeklyChart(viewModel)
+					}
 				}
 			}
 		}
@@ -121,9 +127,9 @@ fun CombinedDailyChart(viewModel: ChartViewModel) {
 	ChartContent(
 		data = viewModel.dailyAverages.collectAsState().value,
 		metrics = listOf(
-			"Water Temp" to { it.avg_watertemp },
-			"Air Temp" to { it.avg_airtemp },
-			"Air Humidity" to { it.avg_airhum }
+			"Water Temp (°C)" to { it.avg_watertemp },
+			"Air Temp (°C)" to { it.avg_airtemp },
+//			"Air Humidity" to { it.avg_airhum }
 		),
 		xAxisLabel = "Day",
 		yAxisLabel = "Value",
@@ -137,13 +143,41 @@ fun CombinedWeeklyChart(viewModel: ChartViewModel) {
 	ChartContent(
 		data = viewModel.weeklyAverages.collectAsState().value,
 		metrics = listOf(
-			"Water Temp" to { it.avg_watertemp },
-			"Air Temp" to { it.avg_airtemp },
-			"Air Humidity" to { it.avg_airhum }
+			"Water Temp (°C)" to { it.avg_watertemp },
+			"Air Temp (°C)" to { it.avg_airtemp },
+//			"Air Humidity" to { it.avg_airhum }
 		),
 		xAxisLabel = "Week",
 		yAxisLabel = "Value",
 		title = "Weekly Average",
+		labels = viewModel.weeklyXAxisLabels.collectAsState().value
+	)
+}
+
+@Composable
+fun AirHumDailyChart(viewModel: ChartViewModel) {
+	ChartContent(
+		data = viewModel.dailyAverages.collectAsState().value,
+		metrics = listOf(
+			"Air Hum (%)" to { it.avg_airhum }
+		),
+		xAxisLabel = "Day",
+		yAxisLabel = "Hum",
+		title = "Daily Humidity",
+		labels = viewModel.dailyXAxisLabels.collectAsState().value
+	)
+}
+
+@Composable
+fun AirHumWeeklyChart(viewModel: ChartViewModel) {
+	ChartContent(
+		data = viewModel.weeklyAverages.collectAsState().value,
+		metrics = listOf(
+			"Air Hum (%)" to { it.avg_airhum }
+		),
+		xAxisLabel = "Week",
+		yAxisLabel = "Hum",
+		title = "Weekly Humidity",
 		labels = viewModel.weeklyXAxisLabels.collectAsState().value
 	)
 }
@@ -215,9 +249,6 @@ fun ChartContent(
 	labels: List<String>
 ) {
 	val headColor = MaterialTheme.colorScheme.onSurface
-	Log.d("ChartContent", "Data: $data")
-	Log.d("ChartContent", "Data size: ${data?.size ?: 0}")
-	data?.forEach { Log.d("ChartContent", "Item: $it") }
 
 	Column(
 		modifier = Modifier

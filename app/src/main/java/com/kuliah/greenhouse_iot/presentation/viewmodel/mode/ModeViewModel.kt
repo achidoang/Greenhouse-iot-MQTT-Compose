@@ -1,11 +1,8 @@
 package com.kuliah.greenhouse_iot.presentation.viewmodel.mode
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kuliah.greenhouse_iot.data.local.datastore.ModePreferences
-import com.kuliah.greenhouse_iot.data.model.mode.ModeResponse
 import com.kuliah.greenhouse_iot.domain.usecases.mode.PostModeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -35,7 +32,7 @@ class ModeViewModel @Inject constructor(
 
 	private fun startAutomaticModeTimer() {
 		viewModelScope.launch {
-			delay(100*10*1000L) // Delay 5 detik
+			delay(600*10*1000L) // Delay 60 menit
 			modePreferences.setAutomaticMode(true)
 			postMode(1)
 		}

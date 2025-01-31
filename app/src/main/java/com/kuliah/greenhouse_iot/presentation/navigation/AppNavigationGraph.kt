@@ -12,7 +12,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.kuliah.greenhouse_iot.presentation.screen.add_user.AddUserScreen
-import com.kuliah.greenhouse_iot.presentation.screen.chart.AverageHistoryScreen
 import com.kuliah.greenhouse_iot.presentation.screen.chart.ChartScreen
 import com.kuliah.greenhouse_iot.presentation.screen.controll.ModeSelectionScreen
 import com.kuliah.greenhouse_iot.presentation.screen.controll.manual.ActuatorScreen

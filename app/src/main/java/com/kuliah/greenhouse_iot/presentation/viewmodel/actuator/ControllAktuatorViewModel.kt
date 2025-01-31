@@ -57,12 +57,19 @@ class ControllAktuatorViewModel @Inject constructor(
 			)
 
 			Log.d("ActuatorRequest", "Request: $request") // Debug request
-
+			val previousState = _aktuatorState.value
 			val result = publishActuatorStatusUseCase(request)
 
 			if (result.isSuccess) {
 				Log.d("ActuatorResponse", "Success")
 				_uiState.value = UiState.Success
+				delay(2500)
+				if (_aktuatorState.value == previousState) {
+					// Jika data tidak berubah, anggap perangkat tidak menanggapi
+					_uiState.value = UiState.NoResponse
+				} else {
+					_uiState.value = UiState.Idle
+				}
 			} else {
 				Log.e("ActuatorResponse", "Error: ${result.exceptionOrNull()}")
 				_uiState.value = UiState.Error
@@ -81,4 +88,5 @@ sealed class UiState {
 	object Loading : UiState()
 	object Success : UiState()
 	object Error : UiState()
+	object NoResponse : UiState()
 }

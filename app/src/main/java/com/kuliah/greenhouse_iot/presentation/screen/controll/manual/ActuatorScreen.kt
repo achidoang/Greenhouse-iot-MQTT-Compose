@@ -173,6 +173,12 @@ fun ActuatorScreen(
 						MaterialTheme.colorScheme.error
 					)
 
+					is UiState.NoResponse -> StatusChip(
+						"Device not responding, please try again",
+						MaterialTheme.colorScheme.error
+					)
+
+
 					else -> {}
 				}
 			}

@@ -1,7 +1,6 @@
 package com.kuliah.greenhouse_iot.presentation.screen.home
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +25,6 @@ import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +42,7 @@ import com.kuliah.greenhouse_iot.data.model.subscribe.MonitoringData
 
 @SuppressLint("NewApi")
 @Composable
-fun CompactMonitoringSection(
+fun MonitoringSection(
 	monitoringData: MonitoringData,
 	deviceStatus: String
 ) {
@@ -81,7 +79,7 @@ fun CompactMonitoringSection(
 				)
 				Spacer(modifier = Modifier.width(4.dp))
 				Text(
-					text = "${monitoringData.waterppm.toInt()} ppm",
+					text = "${monitoringData.waterppm} ppm",
 					color = headColor,
 					style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
 				)
@@ -232,7 +230,7 @@ fun CompactMonitoringCard(
 					modifier = Modifier.fillMaxWidth()
 				) {
 					Text(
-						text = value.toInt().toString(),
+						text = String.format("%.1f", value),
 						color = headColor,
 						style = MaterialTheme.typography.headlineLarge.copy(
 							fontWeight = FontWeight.Bold

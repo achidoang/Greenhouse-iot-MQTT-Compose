@@ -35,15 +35,15 @@ Aplikasi **monitoring dan kontrol berbasis IoT** untuk **greenhouse hidroponik N
 
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
 
-  <img src="/Screenshoot/ss-1.jpg" alt="Screenshot 1" height="450px">
-  <img src="/Screenshoot/ss-2.jpg" alt="Screenshot 2" height="450px">
-  <img src="/Screenshoot/ss-3.jpg" alt="Screenshot 3" height="450px">
-  <img src="/Screenshoot/ss-4.jpg" alt="Screenshot 4" height="450px">
+  <img src="/Screenshoot/ss-1.png" alt="Screenshot 1" height="450px">
+  <img src="/Screenshoot/ss-2.png" alt="Screenshot 2" height="450px">
+  <img src="/Screenshoot/ss-3.png" alt="Screenshot 3" height="450px">
+  <img src="/Screenshoot/ss-4.png" alt="Screenshot 4" height="450px">
   
-  <img src="/Screenshoot/ss-5.jpg" alt="Screenshot 5" height="450px">
-  <img src="/Screenshoot/ss-6.jpg" alt="Screenshot 6" height="450px">
-  <img src="/Screenshoot/ss-7.jpg" alt="Screenshot 7" height="450px">
-  <img src="/Screenshoot/ss-8.jpg" alt="Screenshot 8" height="450px">
+  <img src="/Screenshoot/ss-5.png" alt="Screenshot 5" height="450px">
+  <img src="/Screenshoot/ss-6.png" alt="Screenshot 6" height="450px">
+  <img src="/Screenshoot/ss-7.png" alt="Screenshot 7" height="450px">
+  <img src="/Screenshoot/ss-8.png" alt="Screenshot 8" height="450px">
 
 </div>
 
